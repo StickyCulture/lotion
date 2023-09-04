@@ -1,0 +1,24 @@
+{
+  "name": "notion-sync",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "tsc src/index.ts && node dist/index.js"
+  },
+  "author": "Justin Seibert",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.13",
+    "calipers": "^3.0.0",
+    "calipers-jpeg": "^3.0.0",
+    "calipers-png": "^3.0.0",
+    "colorette": "^2.0.20",
+    "cosmiconfig": "^8.3.4",
+    "dotenv": "^16.3.1"
+  }
+}

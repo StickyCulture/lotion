@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"declaration": true,
+		"declarationMap": true,
+		"esModuleInterop": true,
+		"lib": ["es6"],
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"outDir": "./dist",
+		"sourceMap": true,
+		"target": "es6",
+		"baseUrl": "./",
+		"paths": {
+			"src/*": ["src/*"]
+		}
+	},
+	"include": ["src/**/*", "index.d.ts"],
+	"exclude": [".git", "dist", "node_modules", "public"]
+}
