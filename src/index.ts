@@ -205,7 +205,7 @@ const main = async () => {
       let isValid = true
       for await (const definition of config.input) {
          // logger.quiet(`Validating (${rawInput[definition.field]}) for ${definition.field}`)
-         if (definition.validate && !definition.validate(rawInput[definition.field], item)) {
+         if (definition.validate && !definition.validate(rawInput[definition.field], rawInput)) {
             isValid = false
             logger.warn(`Input for ${definition.field} is invalid.`)
          }
@@ -252,7 +252,7 @@ const main = async () => {
 
          // transform the input
          if (definition.transform) {
-            transformedInput[definition.field] = definition.transform(rawInput[definition.field], item)
+            transformedInput[definition.field] = definition.transform(rawInput[definition.field], rawInput)
          } else {
             transformedInput[definition.field] = rawInput[definition.field]
          }
