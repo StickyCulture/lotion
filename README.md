@@ -52,6 +52,50 @@ The lotion.config.js file should be defined with the following properties.
 | validate | (value: any, originalRowData: any) => boolean? | An optional function that can be used to validate the value of a field. If retunrning `false`, the item will be withheld from the final output. See below for more. |
 | isPageTitle | boolean? | Set this to `true` if the field refers to the column that Notion uses internally for the page title. This should be set on exactly 1 field. |
 
+#### InputDefinition.type
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| uuid | string | `''` | Use this type along with the field named `id` in order to use Notion's internal `id` for the row. |
+| text | string | `''` | Notion text elements when you only want a `string` output of the plaintext. |
+| richText | SchemaRichTextItem[] | `[]` | Notion text elements when you want to preserve the rich text data |
+| number | number | `0` | Notion number elements. |
+| boolean | boolean | `false` | Notion checkbox elements. |
+| files | string[] | `[]` | Notion file elements. The output will be an array of relative local file paths according to `config.outputDir` |
+| file | string | `''` | Notion file elements. Same as `files`, but output is a single `string` path |
+| images | SchemaImage[] | `[]` | Notion file elements considered images `png` or `jpeg`. The output will be an array of relative local file paths according to `config.outputDir` |
+| image | string | `''` | Notion file elements. Same as `images`, but output is a single `string` path |
+| options | string[] | `[]` | Notion multi-select elements. |
+| option | string | `''` | Notion multi-select elements. Same as `options`, but output is a single `string` |
+
+##### SchemaRichTextItem type
+
+| Property | Type |
+| --- | --- |
+| text | string |
+| href | string/null |
+| annotations | SchemaRichTextAnnotations |
+
+##### SchemaRichTextAnnotations type
+
+| Property | Type |
+| --- | --- |
+| bold | boolean |
+| italic | boolean |
+| strikethrough | boolean |
+| underline | boolean |
+| code | boolean |
+| color | string/null |
+
+##### SchemaImage type
+
+| Property | Type |
+| --- | --- |
+| src | string |
+| width | number |
+| height | number |
+
+
 ### SchemaDefinition type
 
 The schema definition can be an object of any shape, but the finally-nested value of any property should be a string that matches the value of a `field` from the `input` array.
