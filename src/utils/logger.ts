@@ -25,6 +25,10 @@ class Logger {
       console.log(' '.repeat(indentOverride || this.indent), gray(message))
    }
 
+   break = (n: number = 0) => {
+      console.log('\n'.repeat(n))
+   }
+
    getProgress(current: number, total: number) {
       // get the number of digits in the total
       const totalDigits = total.toString().length

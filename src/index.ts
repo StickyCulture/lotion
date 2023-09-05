@@ -125,13 +125,12 @@ const main = async () => {
       return
    }
 
-   logger.quiet(`Found lotion configuration at ${configFile.filepath}`)
+   logger.info(`Found lotion configuration at ${configFile.filepath}`)
 
    if (config.envFile) {
       const envPath = path.join(path.dirname(configFile.filepath), config.envFile)
-      logger.quiet(`Loading environment variables from ${envPath}`)
+      logger.info(`Loading environment variables from ${envPath}`)
       configDotenv({ path: envPath })
-      console.log(process.env.NOTION_TOKEN)
    }
 
    logger.info('Applying lotion...')
@@ -195,7 +194,7 @@ const main = async () => {
             : item.properties[pageTitleField].title.length
             ? item.properties[pageTitleField].title[0].plain_text
             : item.id
-      logger.info(`${progress} Processing item for ${pageTitle}`)
+      logger.quiet(`${progress} Processing item for ${pageTitle}`)
       logger.indent = progress.length + 1
 
       // get raw input
@@ -207,7 +206,7 @@ const main = async () => {
          // logger.quiet(`Validating (${rawInput[definition.field]}) for ${definition.field}`)
          if (definition.validate && !definition.validate(rawInput[definition.field], rawInput)) {
             isValid = false
-            logger.warn(`Input for ${definition.field} is invalid.`)
+            logger.warn(`Input for '${definition.field}' is invalid.`)
          }
       }
       // skip if invalid
@@ -224,7 +223,7 @@ const main = async () => {
             const localFilesData: any = await Promise.all(
                rawInput[definition.field].map(async (remoteUrl: string, index: number) => {
                   // save the file locally
-                  logger.info(`Saving ${remoteUrl} locally...`)
+                  logger.quiet(`Saving ${remoteUrl.replace(/\?.*/, '')} to ${config.contentDir}`)
                   const savedData = await saveFileLocally(remoteUrl, contentDirPath, `${item.id}_${index}`)
 
                   // if an image, get width and height
@@ -264,13 +263,12 @@ const main = async () => {
       // add the reshaped input to the formatted data
       formattedData.push(reshaped)
    }
-
-   console.log(formattedData.map((item: any) => item.address))
+   logger.indent = 0
 
    // write the formatted data to the output files
    for await (const file of config.outputFiles) {
       const filePath = path.join(path.dirname(configFile.filepath), file)
-      logger.quiet(`Writing data to ${filePath}`)
+      logger.info(`Writing data to ${filePath}`)
       // get the file extension
       const fileExtension = path.extname(filePath)
       // write the file
@@ -289,7 +287,7 @@ const main = async () => {
       }
    }
 
-   logger.indent = 0
+   logger.break()
    logger.success(`Processed ${formattedData.length} items.`)
    if (numInvalid > 0) {
       logger.warn(`${numInvalid} items were invalid and skipped. See above for details.`)
