@@ -1,26 +1,28 @@
 import { gray, yellow, red, green, blue } from 'colorette'
 
 class Logger {
+   public indent: number = 0
+
    constructor() {}
 
-   success = (message: string) => {
-      console.log(green(message))
+   success = (message: string, indentOverride: number = 0) => {
+      console.log(' '.repeat(indentOverride || this.indent), green(message))
    }
 
-   warn = (message: string) => {
-      console.log(yellow(message))
+   warn = (message: string, indentOverride: number = 0) => {
+      console.log(' '.repeat(indentOverride || this.indent), yellow(message))
    }
 
-   error = (message: string) => {
-      console.log(red(message))
+   error = (message: string, indentOverride: number = 0) => {
+      console.log(' '.repeat(indentOverride || this.indent), red(message))
    }
 
-   info = (message: string) => {
-      console.log(blue(message))
+   info = (message: string, indentOverride: number = 0) => {
+      console.log(' '.repeat(indentOverride || this.indent), blue(message))
    }
 
-   quiet = (message: string) => {
-      console.log(gray(message))
+   quiet = (message: string, indentOverride: number = 0) => {
+      console.log(' '.repeat(indentOverride || this.indent), gray(message))
    }
 
    getProgress(current: number, total: number) {
