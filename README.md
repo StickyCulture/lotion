@@ -1,15 +1,15 @@
 # Sticky | Lotion
 
-Sync a Notion database to a local project.
+Sync a Notion database to a local place.
 
 ## Installation
 
 ```bash
-npm install --save-dev github:sticky/sticky-utils-lotion
+npm install --save-dev git+https://github.com/sticky/sticky-utils-lotion#main
 ```
 
 ```bash
-yarn add --dev github:sticky/sticky-utils-lotion
+yarn add --dev git+https://github.com/sticky/sticky-utils-lotion#main
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ Add a script to your package.json.
 ```json
 {
   "scripts": {
-	"lotion": "node ./node_modules/sticky-utils-lotion/index.js"
+	"lotion": "sticky-utils-lotion"
   }
 }
 ```
