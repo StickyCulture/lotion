@@ -4,3 +4,7 @@ dist
 node_modules
 
 .env*
+
+# for testing
+lotion.config.js
+_test
