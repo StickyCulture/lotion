@@ -278,6 +278,7 @@ const main = async () => {
             break
          case '.js':
             useJavascriptTemplate(formattedData, filePath)
+            break
          case '.ts':
             useTypescriptTemplate(formattedData, filePath, config)
             break

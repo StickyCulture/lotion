@@ -1,6 +1,6 @@
 {
   "name": "sticky-utils-lotion",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "copy a Notion database to a local place",
   "main": "src/index.ts",
   "scripts": {
