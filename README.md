@@ -12,6 +12,8 @@ npm install --save-dev git+https://github.com/sticky/sticky-utils-lotion#main
 yarn add --dev git+https://github.com/sticky/sticky-utils-lotion#main
 ```
 
+> Warning: this package will probably have a lot of breaking changes for a while you should probably use a specific commit hash in your _package.json_ instead of `#main` when installing.
+
 ## Usage
 
 Add a script to your package.json.
