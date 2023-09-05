@@ -1,8 +1,8 @@
 import { Client as NotionClient } from '@notionhq/client'
 
-const NOTION = new NotionClient({ auth: process.env.NOTION_TOKEN })
+export const getAllNotionData = async (database_id: string, token: string) => {
+   const NOTION = new NotionClient({ auth: token })
 
-export const getAllNotionData = async (database_id: string) => {
    let response = await NOTION.databases.query({
       database_id,
    })

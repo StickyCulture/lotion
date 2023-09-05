@@ -26,18 +26,16 @@ const splitExtension = (filename: string) => {
    }
 }
 
-export const saveFileLocally = async (
-   sourceUrl: string,
-   destinationPath: string,
-   customFileName: string = '',
-   indentLength: number = 2
-) => {
-   if (!sourceUrl) return ''
+export const saveFileLocally = async (sourceUrl: string, destinationPath: string, customFileName: string = '') => {
+   if (!sourceUrl)
+      return {
+         fullPath: '',
+         relativePath: '',
+      }
 
    const { name, extension } = splitExtension(sourceUrl)
    const fileName = customFileName || name
    const filePath = path.join(destinationPath, `${fileName}.${extension}`)
-   console.info(`${' '.repeat(indentLength)}downloading file: ${name}.${extension} to ${filePath}`)
 
    // get the file from the url
    const fileResponse = await fetch(sourceUrl)

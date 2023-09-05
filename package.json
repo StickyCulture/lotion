@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "test": "tsc src/index.ts && node dist/index.js"
+    "build": "tsc -p tsconfig.json",
+    "test": "yarn run build && node dist/index.js"
   },
   "author": "Justin Seibert",
   "license": "ISC",
