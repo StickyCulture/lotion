@@ -9,39 +9,14 @@ import { getAllNotionData } from './utils/notion'
 import { saveFileLocally } from './utils/file'
 import { measureImage } from './utils/image'
 
+import { useJsonTemplate } from './template/json'
+import { useJavascriptTemplate } from './template/javascript'
+import { useTypescriptTemplate } from './template/typescript'
+
+import { LotionFieldType, LotionInput, LotionConfig } from './types'
+
 const logger = new Logger()
 const explorer = cosmiconfig('lotion')
-
-type LotionFieldType =
-   | 'uuid'
-   | 'text'
-   | 'richText'
-   | 'number'
-   | 'boolean'
-   | 'files'
-   | 'file'
-   | 'images'
-   | 'image'
-   | 'options'
-   | 'option'
-
-interface LotionInput {
-   field: string
-   type: LotionFieldType
-   default?: any
-   isPageTitle?: boolean
-   validate?: (value: any, item: any) => boolean
-   transform?: (value: any, item: any) => any
-}
-
-interface LotionConfig {
-   envFile?: string
-   database: string
-   contentDir?: string
-   outputFiles: string[]
-   input: LotionInput[]
-   schema: { [key: string]: string | object }
-}
 
 const unknownDefaults: { [key in LotionFieldType]: any } = {
    uuid: '',
@@ -301,11 +276,12 @@ const main = async () => {
       // write the file
       switch (fileExtension) {
          case '.json':
-            fs.writeFileSync(filePath, JSON.stringify(formattedData, null, 2))
+            useJsonTemplate(formattedData, filePath)
             break
          case '.js':
+            useJavascriptTemplate(formattedData, filePath)
          case '.ts':
-            fs.writeFileSync(filePath, `export default ${JSON.stringify(formattedData, null, 2)}`)
+            useTypescriptTemplate(formattedData, filePath, config)
             break
          default:
             logger.error(`Unsupported file extension ${fileExtension}. Aborting.`)
