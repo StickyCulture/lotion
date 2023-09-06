@@ -22,14 +22,6 @@ let progress = ''
 let CONTENT_PATH_ABSOLUTE = ''
 let CONTENT_PATH_RELATIVE = ''
 
-const UNKNOWN_FILE: SchemaFile = {
-   path: '',
-   name: '',
-   extension: '',
-   width: 0,
-   height: 0,
-}
-
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
    text: '',
@@ -37,9 +29,9 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    number: 0,
    boolean: false,
    files: [],
-   file: UNKNOWN_FILE,
+   file: '',
    images: [],
-   image: UNKNOWN_FILE,
+   image: '',
    options: [],
    option: '',
 }
