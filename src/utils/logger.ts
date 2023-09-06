@@ -8,33 +8,33 @@ class Logger {
 
    constructor() {}
 
-   success = (message: string, indentOverride: number = 0) => {
+   success = (message: string, indentOverride?: number) => {
       if (this.logLevel < LoggerLogLevel.NORMAL) return
-      console.log(' '.repeat(indentOverride || this.indent), green(message))
+      console.log(this.getIndent(indentOverride), green(message))
    }
 
-   warn = (message: string, indentOverride: number = 0) => {
+   warn = (message: string, indentOverride?: number) => {
       if (this.logLevel < LoggerLogLevel.NORMAL) return
-      console.log(' '.repeat(indentOverride || this.indent), yellow(message))
+      console.log(this.getIndent(indentOverride), yellow(message))
    }
 
-   error = (message: string, indentOverride: number = 0) => {
-      console.log(' '.repeat(indentOverride || this.indent), red(message))
+   error = (message: string, indentOverride?: number) => {
+      console.log(this.getIndent(indentOverride), red(message))
    }
 
-   info = (message: string, indentOverride: number = 0) => {
+   info = (message: string, indentOverride?: number) => {
       if (this.logLevel < LoggerLogLevel.NORMAL) return
-      console.log(' '.repeat(indentOverride || this.indent), blue(message))
+      console.log(this.getIndent(indentOverride), blue(message))
    }
 
-   quiet = (message: string, indentOverride: number = 0) => {
+   quiet = (message: string, indentOverride?: number) => {
       if (this.logLevel < LoggerLogLevel.DETAILED) return
-      console.log(' '.repeat(indentOverride || this.indent), gray(message))
+      console.log(this.getIndent(indentOverride), gray(message))
    }
 
-   verbose = (message: string, indentOverride: number = 0) => {
+   verbose = (message: any) => {
       if (this.logLevel < LoggerLogLevel.DEBUG) return
-      console.log(' '.repeat(indentOverride || this.indent), message)
+      console.log(message)
    }
 
    break = (n: number = 0) => {
@@ -50,5 +50,8 @@ class Logger {
 
       return `[${currentPadded} / ${total}]`
    }
+
+   private getIndent = (indentOverride?: number) =>
+      ' '.repeat(typeof indentOverride === undefined ? this.indent : indentOverride)
 }
 export default Logger

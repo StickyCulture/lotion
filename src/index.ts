@@ -39,7 +39,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
 const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
    const result: any = {}
    inputDefinitions.forEach((input: LotionInput) => {
-      // logger.quiet(`Getting raw input for ${input.field}`)
+      logger.verbose(`Getting raw input for ${input.field}`)
 
       if (input.field === 'id' && input.type === 'uuid') {
          result[input.field] = item.id
@@ -57,7 +57,8 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
       // if the field is a property of item.properties object, return its raw or default value
       const property = item.properties[input.field]
       const rawValue = property[property.type]
-      // logger.quiet(`Raw value for ${input.field} is ${rawValue}`)
+
+      logger.verbose(rawValue)
       switch (input.type) {
          case 'text':
             // convert the original array to a plaintext string
@@ -82,7 +83,13 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
             return
          case 'option':
             // only one value is expected for this types
-            result[input.field] = rawValue.length > 0 ? rawValue[0] : defaultValue
+            if (property.type === 'multi_select') {
+               result[input.field] = rawValue.length > 0 ? rawValue[0] : defaultValue
+            } else if (property.type === 'select') {
+               result[input.field] = rawValue ? rawValue.name : defaultValue
+            } else {
+               result[input.field] = defaultValue
+            }
             return
          case 'files':
          case 'images':
@@ -91,7 +98,13 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
             return
          case 'options':
             // multiple values are allowed for these types
-            result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
+            if (property.type === 'multi_select') {
+               result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
+            } else if (property.type === 'select') {
+               result[input.field] = rawValue ? [rawValue.name] : defaultValue
+            } else {
+               result[input.field] = defaultValue
+            }
             return
          default:
             result[input.field] = rawValue
