@@ -7,18 +7,22 @@ import { cosmiconfig } from 'cosmiconfig'
 import Logger from './utils/logger'
 import { getAllNotionData } from './utils/notion'
 import { saveFileLocally } from './utils/file'
-import { measureImage } from './utils/image'
 
 import { useJsonTemplate } from './template/json'
 import { useJavascriptTemplate } from './template/javascript'
 import { useTypescriptTemplate } from './template/typescript'
 
-import { LotionFieldType, LotionInput, LotionConfig } from './types'
+import { LotionFieldType, LotionInput, LotionConfig, SchemaFile, LoggerLogLevel, LotionLogLevel } from './types'
+import { sanitizeText } from './utils/text'
 
 const logger = new Logger()
 const explorer = cosmiconfig('lotion')
 
-const unknownDefaults: { [key in LotionFieldType]: any } = {
+let progress = ''
+let CONTENT_PATH_ABSOLUTE = ''
+let CONTENT_PATH_RELATIVE = ''
+
+const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
    text: '',
    richText: [],
@@ -35,14 +39,14 @@ const unknownDefaults: { [key in LotionFieldType]: any } = {
 const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
    const result: any = {}
    inputDefinitions.forEach((input: LotionInput) => {
-      // logger.quiet(`Getting raw input for ${input.field}`)
+      logger.verbose(`Getting raw input for ${input.field}`)
 
       if (input.field === 'id' && input.type === 'uuid') {
          result[input.field] = item.id
          return
       }
 
-      const defaultValue = input.default || unknownDefaults[input.type]
+      const defaultValue = input.default || UNKNOWN_DEFAULTS[input.type]
 
       // if the field is not a property of item.properties object, return the default value
       if (!item.properties[input.field]) {
@@ -53,7 +57,8 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
       // if the field is a property of item.properties object, return its raw or default value
       const property = item.properties[input.field]
       const rawValue = property[property.type]
-      // logger.quiet(`Raw value for ${input.field} is ${rawValue}`)
+
+      logger.verbose(rawValue)
       switch (input.type) {
          case 'text':
             // convert the original array to a plaintext string
@@ -78,7 +83,13 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
             return
          case 'option':
             // only one value is expected for this types
-            result[input.field] = rawValue.length > 0 ? rawValue[0] : defaultValue
+            if (property.type === 'multi_select') {
+               result[input.field] = rawValue.length > 0 ? rawValue[0] : defaultValue
+            } else if (property.type === 'select') {
+               result[input.field] = rawValue ? rawValue.name : defaultValue
+            } else {
+               result[input.field] = defaultValue
+            }
             return
          case 'files':
          case 'images':
@@ -87,7 +98,13 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
             return
          case 'options':
             // multiple values are allowed for these types
-            result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
+            if (property.type === 'multi_select') {
+               result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
+            } else if (property.type === 'select') {
+               result[input.field] = rawValue ? [rawValue.name] : defaultValue
+            } else {
+               result[input.field] = defaultValue
+            }
             return
          default:
             result[input.field] = rawValue
@@ -97,16 +114,26 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
    return result
 }
 
-const reshapeObject = (input: any, schema: any) => {
+const reshapeObject = (input: any, schema: any): any => {
    const reshaped: any = {}
+
+   // assumes we have descended into an array of strings
+   if (typeof schema === 'string') {
+      return input[schema]
+   }
+
+   // assumes we have descended into an array
+   if (Array.isArray(schema)) {
+      return schema.map((item: any) => reshapeObject(input, item))
+   }
+
+   // assumes we have descended into an object
+   // reshape the keys
    Object.keys(schema).forEach(key => {
       const value = schema[key]
-      if (typeof value === 'string') {
-         reshaped[key] = input[value]
-      } else if (typeof value === 'object') {
-         reshaped[key] = reshapeObject(input, value)
-      }
+      reshaped[key] = reshapeObject(input, value)
    })
+
    return reshaped
 }
 
@@ -123,6 +150,11 @@ const main = async () => {
    } catch (err) {
       logger.error(err)
       return
+   }
+
+   // set the log level
+   if (config.logLevel) {
+      logger.logLevel = LoggerLogLevel[config.logLevel.toUpperCase() as keyof typeof LoggerLogLevel]
    }
 
    logger.info(`Found lotion configuration at ${configFile.filepath}`)
@@ -165,12 +197,12 @@ const main = async () => {
    }
 
    // create the content directory if it doesn't exist
-   let contentDirPath = ''
    if (config.contentDir) {
-      contentDirPath = path.join(path.dirname(configFile.filepath), config.contentDir)
-      if (!fs.existsSync(contentDirPath)) {
-         logger.quiet(`Creating content directory at ${contentDirPath}`)
-         fs.mkdirSync(contentDirPath, { recursive: true })
+      CONTENT_PATH_RELATIVE = config.contentDir
+      CONTENT_PATH_ABSOLUTE = path.join(path.dirname(configFile.filepath), config.contentDir)
+      if (!fs.existsSync(CONTENT_PATH_ABSOLUTE)) {
+         logger.quiet(`Creating content directory at ${CONTENT_PATH_ABSOLUTE}`)
+         fs.mkdirSync(CONTENT_PATH_ABSOLUTE, { recursive: true })
       }
    }
 
@@ -182,7 +214,7 @@ const main = async () => {
       index++
       logger.indent = 0
 
-      const progress = logger.getProgress(index, notionData.length)
+      progress = logger.getProgress(index, notionData.length)
       if (!item.properties) {
          logger.quiet(`${progress} Item ${item.id} has no properties. Skipping.`)
          continue
@@ -219,38 +251,38 @@ const main = async () => {
       const transformedInput: any = {}
       for await (const definition of config.input) {
          // save local files before transforming
-         if (definition.type.includes('image') || definition.type.includes('file')) {
-            const localFilesData: any = await Promise.all(
-               rawInput[definition.field].map(async (remoteUrl: string, index: number) => {
-                  // save the file locally
-                  logger.quiet(`Saving ${remoteUrl.replace(/\?.*/, '')} to ${config.contentDir}`)
-                  const savedData = await saveFileLocally(remoteUrl, contentDirPath, `${item.id}_${index}`)
-
-                  // if an image, get width and height
-                  if (definition.type.includes('image')) {
-                     const imageData = {
-                        url: savedData.relativePath,
-                        width: 0,
-                        height: 0,
-                     }
-                     try {
-                        const measured: any = await measureImage(savedData.fullPath)
-                        imageData.width = measured.pages[0].width
-                        imageData.height = measured.pages[0].height
-                     } catch (err) {
-                        console.error(' '.repeat(progress.length), err)
-                     }
-                     return imageData
-                  }
-
-                  return savedData.relativePath
-               })
-            )
-            rawInput[definition.field] = localFilesData
+         switch (definition.type) {
+            case 'file':
+            case 'image':
+               let fileData: SchemaFile = await saveFileLocally(
+                  rawInput[definition.field],
+                  CONTENT_PATH_ABSOLUTE,
+                  [rawInput.id, sanitizeText(definition.field), 0].join('_')
+               )
+               fileData.path = CONTENT_PATH_RELATIVE || fileData.path
+               rawInput[definition.field] = fileData
+               break
+            case 'files':
+            case 'images':
+               rawInput[definition.field] = await Promise.all(
+                  rawInput[definition.field].map(async (remoteUrl: string, index: number) => {
+                     let fileData: SchemaFile = await saveFileLocally(
+                        remoteUrl,
+                        CONTENT_PATH_ABSOLUTE,
+                        [rawInput.id, sanitizeText(definition.field), index].join('_')
+                     )
+                     fileData.path = CONTENT_PATH_RELATIVE || fileData.path
+                     return fileData
+                  })
+               )
+               break
+            default:
+               break
          }
 
          // transform the input
          if (definition.transform) {
+            logger.verbose(`Transforming ${definition.type} for ${definition.field}`)
             transformedInput[definition.field] = definition.transform(rawInput[definition.field], rawInput)
          } else {
             transformedInput[definition.field] = rawInput[definition.field]

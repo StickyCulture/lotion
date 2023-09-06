@@ -6,5 +6,5 @@ node_modules
 .env*
 
 # for testing
-lotion.config.js
+*lotion.config*.js
 _test

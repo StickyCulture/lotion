@@ -1,31 +1,44 @@
 import { gray, yellow, red, green, blue } from 'colorette'
 
+import { LoggerLogLevel } from '../types'
+
 class Logger {
    public indent: number = 0
+   public logLevel: LoggerLogLevel = LoggerLogLevel.NORMAL
 
    constructor() {}
 
-   success = (message: string, indentOverride: number = 0) => {
-      console.log(' '.repeat(indentOverride || this.indent), green(message))
+   success = (message: string, indentOverride?: number) => {
+      if (this.logLevel < LoggerLogLevel.NORMAL) return
+      console.log(this.getIndent(indentOverride), green(message))
    }
 
-   warn = (message: string, indentOverride: number = 0) => {
-      console.log(' '.repeat(indentOverride || this.indent), yellow(message))
+   warn = (message: string, indentOverride?: number) => {
+      if (this.logLevel < LoggerLogLevel.NORMAL) return
+      console.log(this.getIndent(indentOverride), yellow(message))
    }
 
-   error = (message: string, indentOverride: number = 0) => {
-      console.log(' '.repeat(indentOverride || this.indent), red(message))
+   error = (message: string, indentOverride?: number) => {
+      console.log(this.getIndent(indentOverride), red(message))
    }
 
-   info = (message: string, indentOverride: number = 0) => {
-      console.log(' '.repeat(indentOverride || this.indent), blue(message))
+   info = (message: string, indentOverride?: number) => {
+      if (this.logLevel < LoggerLogLevel.NORMAL) return
+      console.log(this.getIndent(indentOverride), blue(message))
    }
 
-   quiet = (message: string, indentOverride: number = 0) => {
-      console.log(' '.repeat(indentOverride || this.indent), gray(message))
+   quiet = (message: string, indentOverride?: number) => {
+      if (this.logLevel < LoggerLogLevel.DETAILED) return
+      console.log(this.getIndent(indentOverride), gray(message))
+   }
+
+   verbose = (message: any) => {
+      if (this.logLevel < LoggerLogLevel.DEBUG) return
+      console.log(message)
    }
 
    break = (n: number = 0) => {
+      if (this.logLevel < LoggerLogLevel.NORMAL) return
       console.log('\n'.repeat(n))
    }
 
@@ -37,5 +50,8 @@ class Logger {
 
       return `[${currentPadded} / ${total}]`
    }
+
+   private getIndent = (indentOverride?: number) =>
+      ' '.repeat(typeof indentOverride === undefined ? this.indent : indentOverride)
 }
 export default Logger

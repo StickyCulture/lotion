@@ -1,3 +1,17 @@
+export enum LoggerLogLevel {
+   NONE,
+   NORMAL,
+   DETAILED,
+   DEBUG,
+}
+
+export enum LotionLogLevel {
+   NONE = 'none',
+   NORMAL = 'normal',
+   DETAILED = 'detailed',
+   DEBUG = 'debug',
+}
+
 export type LotionFieldType =
    | 'uuid'
    | 'text'
@@ -25,6 +39,15 @@ export interface LotionConfig {
    database: string
    contentDir?: string
    outputFiles: string[]
+   logLevel: LotionLogLevel
    input: LotionInput[]
    schema: { [key: string]: string | object }
+}
+
+export interface SchemaFile {
+   path: string
+   name: string
+   extension: string
+   width: number
+   height: number
 }
