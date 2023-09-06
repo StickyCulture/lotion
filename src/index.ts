@@ -101,16 +101,26 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
    return result
 }
 
-const reshapeObject = (input: any, schema: any) => {
+const reshapeObject = (input: any, schema: any): any => {
    const reshaped: any = {}
+
+   // assumes we have descended into an array of strings
+   if (typeof schema === 'string') {
+      return input[schema]
+   }
+
+   // assumes we have descended into an array
+   if (Array.isArray(schema)) {
+      return schema.map((item: any) => reshapeObject(input, item))
+   }
+
+   // assumes we have descended into an object
+   // reshape the keys
    Object.keys(schema).forEach(key => {
       const value = schema[key]
-      if (typeof value === 'string') {
-         reshaped[key] = input[value]
-      } else if (typeof value === 'object') {
-         reshaped[key] = reshapeObject(input, value)
-      }
+      reshaped[key] = reshapeObject(input, value)
    })
+
    return reshaped
 }
 
