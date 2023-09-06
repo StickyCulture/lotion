@@ -7,27 +7,39 @@ import { cosmiconfig } from 'cosmiconfig'
 import Logger from './utils/logger'
 import { getAllNotionData } from './utils/notion'
 import { saveFileLocally } from './utils/file'
-import { measureImage } from './utils/image'
 
 import { useJsonTemplate } from './template/json'
 import { useJavascriptTemplate } from './template/javascript'
 import { useTypescriptTemplate } from './template/typescript'
 
-import { LotionFieldType, LotionInput, LotionConfig } from './types'
+import { LotionFieldType, LotionInput, LotionConfig, SchemaFile } from './types'
+import { sanitizeText } from './utils/text'
 
 const logger = new Logger()
 const explorer = cosmiconfig('lotion')
 
-const unknownDefaults: { [key in LotionFieldType]: any } = {
+let progress = ''
+let CONTENT_PATH_ABSOLUTE = ''
+let CONTENT_PATH_RELATIVE = ''
+
+const UNKNOWN_FILE: SchemaFile = {
+   path: '',
+   name: '',
+   extension: '',
+   width: 0,
+   height: 0,
+}
+
+const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
    text: '',
    richText: [],
    number: 0,
    boolean: false,
    files: [],
-   file: '',
+   file: UNKNOWN_FILE,
    images: [],
-   image: '',
+   image: UNKNOWN_FILE,
    options: [],
    option: '',
 }
@@ -42,7 +54,7 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
          return
       }
 
-      const defaultValue = input.default || unknownDefaults[input.type]
+      const defaultValue = input.default || UNKNOWN_DEFAULTS[input.type]
 
       // if the field is not a property of item.properties object, return the default value
       if (!item.properties[input.field]) {
@@ -165,12 +177,12 @@ const main = async () => {
    }
 
    // create the content directory if it doesn't exist
-   let contentDirPath = ''
    if (config.contentDir) {
-      contentDirPath = path.join(path.dirname(configFile.filepath), config.contentDir)
-      if (!fs.existsSync(contentDirPath)) {
-         logger.quiet(`Creating content directory at ${contentDirPath}`)
-         fs.mkdirSync(contentDirPath, { recursive: true })
+      CONTENT_PATH_RELATIVE = config.contentDir
+      CONTENT_PATH_ABSOLUTE = path.join(path.dirname(configFile.filepath), config.contentDir)
+      if (!fs.existsSync(CONTENT_PATH_ABSOLUTE)) {
+         logger.quiet(`Creating content directory at ${CONTENT_PATH_ABSOLUTE}`)
+         fs.mkdirSync(CONTENT_PATH_ABSOLUTE, { recursive: true })
       }
    }
 
@@ -182,7 +194,7 @@ const main = async () => {
       index++
       logger.indent = 0
 
-      const progress = logger.getProgress(index, notionData.length)
+      progress = logger.getProgress(index, notionData.length)
       if (!item.properties) {
          logger.quiet(`${progress} Item ${item.id} has no properties. Skipping.`)
          continue
@@ -219,34 +231,33 @@ const main = async () => {
       const transformedInput: any = {}
       for await (const definition of config.input) {
          // save local files before transforming
-         if (definition.type.includes('image') || definition.type.includes('file')) {
-            const localFilesData: any = await Promise.all(
-               rawInput[definition.field].map(async (remoteUrl: string, index: number) => {
-                  // save the file locally
-                  logger.quiet(`Saving ${remoteUrl.replace(/\?.*/, '')} to ${config.contentDir}`)
-                  const savedData = await saveFileLocally(remoteUrl, contentDirPath, `${item.id}_${index}`)
-
-                  // if an image, get width and height
-                  if (definition.type.includes('image')) {
-                     const imageData = {
-                        url: savedData.relativePath,
-                        width: 0,
-                        height: 0,
-                     }
-                     try {
-                        const measured: any = await measureImage(savedData.fullPath)
-                        imageData.width = measured.pages[0].width
-                        imageData.height = measured.pages[0].height
-                     } catch (err) {
-                        console.error(' '.repeat(progress.length), err)
-                     }
-                     return imageData
-                  }
-
-                  return savedData.relativePath
-               })
-            )
-            rawInput[definition.field] = localFilesData
+         switch (definition.type) {
+            case 'file':
+            case 'image':
+               let fileData: SchemaFile = await saveFileLocally(
+                  rawInput[definition.field],
+                  CONTENT_PATH_ABSOLUTE,
+                  [rawInput.id, sanitizeText(definition.field), 0].join('_')
+               )
+               fileData.path = CONTENT_PATH_RELATIVE || fileData.path
+               rawInput[definition.field] = fileData
+               break
+            case 'files':
+            case 'images':
+               rawInput[definition.field] = await Promise.all(
+                  rawInput[definition.field].map(async (remoteUrl: string, index: number) => {
+                     let fileData: SchemaFile = await saveFileLocally(
+                        remoteUrl,
+                        CONTENT_PATH_ABSOLUTE,
+                        [rawInput.id, sanitizeText(definition.field), index].join('_')
+                     )
+                     fileData.path = CONTENT_PATH_RELATIVE || fileData.path
+                     return fileData
+                  })
+               )
+               break
+            default:
+               break
          }
 
          // transform the input

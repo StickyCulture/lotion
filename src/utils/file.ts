@@ -3,6 +3,9 @@ import path from 'path'
 import fetch from 'node-fetch'
 
 import { sanitizeText } from './text'
+import { measureImage } from './image'
+
+import { SchemaFile } from 'src/types'
 
 const splitExtension = (filename: string) => {
    const split = filename.split('.')
@@ -26,25 +29,44 @@ const splitExtension = (filename: string) => {
    }
 }
 
-export const saveFileLocally = async (sourceUrl: string, destinationPath: string, customFileName: string = '') => {
-   if (!sourceUrl)
-      return {
-         fullPath: '',
-         relativePath: '',
-      }
+export const saveFileLocally = async (
+   remoteUrl: string,
+   destinationPath: string,
+   customFileName: string = ''
+): Promise<SchemaFile> => {
+   let result: SchemaFile = {
+      path: destinationPath,
+      name: '',
+      extension: '',
+      width: 0,
+      height: 0,
+   }
 
-   const { name, extension } = splitExtension(sourceUrl)
-   const fileName = customFileName || name
-   const filePath = path.join(destinationPath, `${fileName}.${extension}`)
+   if (!remoteUrl) {
+      return result
+   }
+
+   const { name, extension } = splitExtension(remoteUrl)
+   result.name = customFileName || name
+   result.extension = extension
+   const absolutePath = path.join(destinationPath, `${result.name}.${extension}`)
 
    // get the file from the url
-   const fileResponse = await fetch(sourceUrl)
+   const fileResponse = await fetch(remoteUrl)
    const fileBuffer = await fileResponse.arrayBuffer()
 
-   fs.writeFileSync(filePath, Buffer.from(fileBuffer))
+   fs.writeFileSync(absolutePath, Buffer.from(fileBuffer))
 
-   return {
-      fullPath: filePath,
-      relativePath: filePath.split('public/')[1],
+   // if an image, get width and height
+   if (extension.match(/(jpg|jpeg|png)/)) {
+      try {
+         const measured: any = await measureImage(absolutePath)
+         result.width = measured.pages[0].width
+         result.height = measured.pages[0].height
+      } catch (err) {
+         console.error(err)
+      }
    }
+
+   return result
 }

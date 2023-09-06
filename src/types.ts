@@ -28,3 +28,11 @@ export interface LotionConfig {
    input: LotionInput[]
    schema: { [key: string]: string | object }
 }
+
+export interface SchemaFile {
+   path: string
+   name: string
+   extension: string
+   width: number
+   height: number
+}

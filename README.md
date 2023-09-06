@@ -21,7 +21,7 @@ Add a script to your package.json.
 ```json
 {
   "scripts": {
-	"lotion": "sticky-utils-lotion"
+    "lotion": "sticky-utils-lotion"
   }
 }
 ```
@@ -32,29 +32,35 @@ Add a _lotion.config.js_ file to your project that defines the way your Notion d
 
 The lotion.config.js file should be defined with the following properties.
 
+<details>
+<summary>Global properties</summary>
+
 | Property | Type | Description |
 | --- | --- | --- |
 | envFile | string? | Path[^1] to a file that contains environment variables. Only needed if the database requires authentication, in which case, it should include a variable named `NOTION_TOKEN.` |
 | database | string | The ID of the Notion database to sync. |
 | outputFiles | string[] | An array of file paths[^1] to generate. Can be of type `json`, `js` or `ts`. |
 | contentDir | string? | The directory[^1] to store downloaded files. This is only required if your input definitions contain a field of type `image`, `images`, `file`, or `files`. |
-| input | InputDefinition[] | An array of input definitions. [See below for details.](#inputdefinition-type) |
-| schema | SchemaDefinition | An object that describes the final shape of the local data. [See below for details.](#schemadefinition-type) |
+| input | InputDefinition[] | An array of input definitions. See below for details. |
+| schema | SchemaDefinition | An object that describes the final shape of the local data. See below for details. |
 
 [^1]: All path values are considered relative to the lotion.config.js location.
+</details>
 
-### InputDefinition type
+<details>
+<summary>InputDefinition</summary>
 
 | Property | Type | Description |
 | --- | --- | --- |
 | field | string | The name of the data column in Notion. It should match exactly. |
-| type | string | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`. |
+| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`. |
 | default | any? | A default value to use if the field is empty. This is optional and will be set based on the `type` if not defined |
 | transform | (value: any, originalRowData: any) => any? | An optional function that can be used apply a transformation to final shape of the particular field item. See below for more. |
 | validate | (value: any, originalRowData: any) => boolean? | An optional function that can be used to validate the value of a field. If retunrning `false`, the item will be withheld from the final output. See below for more. |
 | isPageTitle | boolean? | Set this to `true` if the field refers to the column that Notion uses internally for the page title. This should be set on exactly 1 field. |
-
-#### InputDefinition.type
+</details>
+<details>
+<summary>TransformType</summary>
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -63,22 +69,25 @@ The lotion.config.js file should be defined with the following properties.
 | richText | SchemaRichTextItem[] | `[]` | Notion text elements when you want to preserve the rich text data |
 | number | number | `0` | Notion number elements. |
 | boolean | boolean | `false` | Notion checkbox elements. |
-| files | string[] | `[]` | Notion file elements. The output will be an array of relative local file paths according to `config.outputDir` |
-| file | string | `''` | Notion file elements. Same as `files`, but output is a single `string` path |
-| images | SchemaImage[] | `[]` | Notion file elements considered images `png` or `jpeg`. The output will be an array of relative local file paths according to `config.outputDir` |
-| image | string | `''` | Notion file elements. Same as `images`, but output is a single `string` path |
+| files | SchemaFile[] | `[]` | Notion file elements. |
+| file | SchemaFile | `{...}` | Notion file elements. Same as `files`, but output is a single item |
+| images | SchemaFile[] | `[]` | Notion file elements considered images `png` or `jp(e)g`. |
+| image | SchemaFile | `{...}` | Notion file elements. Same as `images`, but output is a single item |
 | options | string[] | `[]` | Notion multi-select elements. |
 | option | string | `''` | Notion multi-select elements. Same as `options`, but output is a single `string` |
+</details>
 
-##### SchemaRichTextItem type
+<details>
+<summary>SchemaRichTextItem</summary>
 
 | Property | Type |
 | --- | --- |
 | text | string |
 | href | string/null |
 | annotations | SchemaRichTextAnnotations |
-
-##### SchemaRichTextAnnotations type
+</details>
+<details>
+<summary>SchemaRichTextAnnotations</summary>
 
 | Property | Type |
 | --- | --- |
@@ -88,14 +97,18 @@ The lotion.config.js file should be defined with the following properties.
 | underline | boolean |
 | code | boolean |
 | color | string/null |
+</details>
+<details>
+<summary>SchemaFile</summary>
 
-##### SchemaImage type
-
-| Property | Type |
-| --- | --- |
-| src | string |
-| width | number |
-| height | number |
+| Property | Type | Description |
+| --- | --- | --- |
+| path | string | The path to the file relative to the `contentDir` |
+| name | string | The name of the file (without extension) |
+| extension | string | The file extension |
+| width | number | This will be `0` if not an image type |
+| height | number | This will be `0` if not an image type |
+</details>
 
 
 ### SchemaDefinition type
@@ -115,16 +128,28 @@ Syncing the Notion data happens in 4 main stages. These are listed here to insig
 1. Transform the validated data based on the `transform` functions.
 1. Re-shape the transformed data based on the `schema` definition.
 
+Both validate and transform functions are each passed 2 arguments containing lightly pre-processed data from Notion.
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| value | any | The value of the field from the Notion database. |
+| originalRowData | any | The entire row of data from the Notion database. Access the data with the original `field` name, i.e. `originalRowData['My Notion Column']` |
+
+The pre-processing is done to the row data before it is passed to these functions to make it easier to work with. For instance, an `image` value will be `SchemaFile` type instead of the raw Notion data. `option` values are flattened into a single string instead of an array of objects. This is true of the data presented in the `originalRowData` argument as well.
+
 ## Example
 
-_.env_
+<details>
+<summary>.env file</summary>
+
 ```.env
 NOTION_TOKEN=secret_1234567890abcdef1234567890abcdef
 ```
+</details>
+<details>
+<summary>lotion.config.js file</summary>
 
-_lotion.config.js_
 ```js
-
 module.exports = {
 	envFile: './.env',
 	database: '1234567890abcdef1234567890abcdef',
@@ -203,3 +228,4 @@ module.exports = {
 		}
 	}
 }
+</details>
