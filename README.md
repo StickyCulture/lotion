@@ -41,6 +41,7 @@ The lotion.config.js file should be defined with the following properties.
 | database | string | The ID of the Notion database to sync. |
 | outputFiles | string[] | An array of file paths[^1] to generate. Can be of type `json`, `js` or `ts`. |
 | contentDir | string? | The directory[^1] to store downloaded files. This is only required if your input definitions contain a field of type `image`, `images`, `file`, or `files`. |
+| logLevel | string? | The level of logging to output. Can be one of `none`, `normal`, `detailed`, or `debug`. Defaults to `normal`. |
 | input | InputDefinition[] | An array of input definitions. See below for details. |
 | schema | SchemaDefinition | An object that describes the final shape of the local data. See below for details. |
 

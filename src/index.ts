@@ -12,7 +12,7 @@ import { useJsonTemplate } from './template/json'
 import { useJavascriptTemplate } from './template/javascript'
 import { useTypescriptTemplate } from './template/typescript'
 
-import { LotionFieldType, LotionInput, LotionConfig, SchemaFile } from './types'
+import { LotionFieldType, LotionInput, LotionConfig, SchemaFile, LoggerLogLevel, LotionLogLevel } from './types'
 import { sanitizeText } from './utils/text'
 
 const logger = new Logger()
@@ -135,6 +135,11 @@ const main = async () => {
    } catch (err) {
       logger.error(err)
       return
+   }
+
+   // set the log level
+   if (config.logLevel) {
+      logger.logLevel = LoggerLogLevel[config.logLevel.toUpperCase() as keyof typeof LoggerLogLevel]
    }
 
    logger.info(`Found lotion configuration at ${configFile.filepath}`)
@@ -262,6 +267,7 @@ const main = async () => {
 
          // transform the input
          if (definition.transform) {
+            logger.verbose(`Transforming ${definition.type} for ${definition.field}`)
             transformedInput[definition.field] = definition.transform(rawInput[definition.field], rawInput)
          } else {
             transformedInput[definition.field] = rawInput[definition.field]
