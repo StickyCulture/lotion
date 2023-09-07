@@ -183,7 +183,6 @@ module.exports = {
 		{
 			field: 'Tags',
 			type: 'options',
-			default: [],
 			transform: (value, originalRowData) => {
 				return value.map((tag) => {
 					return {

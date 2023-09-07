@@ -51,3 +51,7 @@ export interface SchemaFile {
    width: number
    height: number
 }
+
+export interface FilteredRow {
+   [field: string]: any
+}
