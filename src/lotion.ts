@@ -1,6 +1,6 @@
 import path from 'path'
 
-import Logger from './utils/logger'
+import logger from './utils/logger'
 import { getAllNotionData } from './utils/notion'
 import { saveFileLocally } from './utils/file'
 
@@ -18,8 +18,6 @@ import {
    LotionParams,
 } from './types'
 import { sanitizeText } from './utils/text'
-
-const logger = new Logger()
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',

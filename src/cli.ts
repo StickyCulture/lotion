@@ -6,11 +6,10 @@ import { cosmiconfig, CosmiconfigResult } from 'cosmiconfig'
 import { configDotenv } from 'dotenv'
 
 import Lotion from './lotion'
-import Logger from './utils/logger'
+import logger from './utils/logger'
 
 import { LoggerLogLevel, LotionCliOptions, LotionConfig, LotionInput } from './types'
 
-const logger = new Logger()
 const program = new Command()
 const explorer = cosmiconfig('lotion')
 

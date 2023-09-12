@@ -3,10 +3,19 @@ import { gray, yellow, red, green, blue } from 'colorette'
 import { LoggerLogLevel } from '../types'
 
 class Logger {
+   private static instance: Logger
+
    public indent: number = 0
    public logLevel: LoggerLogLevel = LoggerLogLevel.NORMAL
 
-   constructor() {}
+   private constructor() {}
+
+   static getInstance(): Logger {
+      if (!Logger.instance) {
+         Logger.instance = new Logger()
+      }
+      return Logger.instance
+   }
 
    success = (message: string, indentOverride?: number) => {
       if (this.logLevel < LoggerLogLevel.NORMAL) return
@@ -54,4 +63,5 @@ class Logger {
    private getIndent = (indentOverride?: number) =>
       ' '.repeat(typeof indentOverride === undefined ? this.indent : indentOverride)
 }
-export default Logger
+
+export default Logger.getInstance()
