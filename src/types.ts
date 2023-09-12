@@ -14,6 +14,7 @@ export enum LotionLogLevel {
 
 export type LotionFieldType =
    | 'uuid'
+   | 'title'
    | 'text'
    | 'richText'
    | 'number'
@@ -31,7 +32,6 @@ export interface LotionInput {
    field: string
    type: LotionFieldType
    default?: any
-   isPageTitle?: boolean
    validate?: (value: any, item: any) => Promise<boolean>
    transform?: (value: any, item: any) => Promise<any>
 }

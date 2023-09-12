@@ -27,6 +27,7 @@ let progress = ''
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
+   title: '',
    text: '',
    richText: [],
    number: 0,
@@ -307,7 +308,7 @@ const main = async () => {
    const notionData = await getAllNotionData(CONFIG.database, process.env.NOTION_TOKEN)
 
    // get the field that is the page title
-   const pageTitleField = (CONFIG.input.find(input => input.isPageTitle) || { field: 'id' }).field
+   const pageTitleField = (CONFIG.input.find(input => input.type === 'title') || { field: 'id' }).field
    logger.verbose(`Using "${pageTitleField}" as page title field`)
 
    let formattedData = []
@@ -327,8 +328,8 @@ const main = async () => {
       const pageTitle =
          pageTitleField === 'id'
             ? row.id
-            : row.properties[pageTitleField].title.length
-            ? row.properties[pageTitleField].title[0].plain_text
+            : row.properties[pageTitleField][row.properties[pageTitleField].type].length
+            ? row.properties[pageTitleField][row.properties[pageTitleField].type][0].plain_text
             : row.id
       logger.quiet(`${progress} Processing item for ${pageTitle}`)
       logger.indent = progress.length + 1
