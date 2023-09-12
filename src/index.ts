@@ -117,12 +117,15 @@ const filterRow = (item: any): FilteredRow => {
    return result
 }
 
-const validateRow = (row: FilteredRow): boolean => {
+const validateRow = async (row: FilteredRow): Promise<boolean> => {
    let isValid = true
    for (const { validate, field } of CONFIG.input) {
+      if (!validate) continue
+
       const value = row[field]
       logger.verbose(`Validating (${value}) for ${field}`)
-      if (validate && !validate(value, row)) {
+      const result = await validate(value, row)
+      if (!result) {
          isValid = false
          logger.warn(`Input for '${field}' is invalid.`)
       }
@@ -166,7 +169,7 @@ const transformRow = async (row: FilteredRow): Promise<FilteredRow> => {
       // transform the input
       if (definition.transform) {
          logger.verbose(`Transforming ${definition.type} for ${definition.field}`)
-         transformed[definition.field] = definition.transform(row[definition.field], row)
+         transformed[definition.field] = await definition.transform(row[definition.field], row)
       } else {
          transformed[definition.field] = row[definition.field]
       }
@@ -324,7 +327,8 @@ const main = async () => {
       const filteredRow: FilteredRow = filterRow(row)
 
       // skip if invalid
-      if (!validateRow(filteredRow)) {
+      const isValid = await validateRow(filteredRow)
+      if (!isValid) {
          numInvalid++
          continue
       }

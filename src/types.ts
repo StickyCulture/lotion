@@ -30,8 +30,8 @@ export interface LotionInput {
    type: LotionFieldType
    default?: any
    isPageTitle?: boolean
-   validate?: (value: any, item: any) => boolean
-   transform?: (value: any, item: any) => any
+   validate?: (value: any, item: any) => Promise<boolean>
+   transform?: (value: any, item: any) => Promise<any>
 }
 
 export interface LotionConfig {
