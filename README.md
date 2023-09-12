@@ -44,6 +44,7 @@ The lotion.config.js file should be defined with the following properties.
 | logLevel | string? | The level of logging to output. Can be one of `none`, `normal`, `detailed`, or `debug`. Defaults to `normal`. |
 | input | InputDefinition[] | An array of input definitions. See below for details. |
 | schema | SchemaDefinition | An object that describes the final shape of the local data. See below for details. |
+| postProcess | (schemaData: any) => Promise\<any\>? | An optional asynchronous function that can be used to transform the final data just before it is written to the output files. The `schemaData` argument takes the shape of the `schema` definition and includes any changes specified by `input`-level `validate` or `transform` functions. |
 
 [^1]: All path values are considered relative to the lotion.config.js location.
 </details>
@@ -54,10 +55,10 @@ The lotion.config.js file should be defined with the following properties.
 | Property | Type | Description |
 | --- | --- | --- |
 | field | string | The name of the data column in Notion. It should match exactly. |
-| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`. |
+| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`, `relations`, `relation`. |
 | default | any? | A default value to use if the field is empty. This is optional and will be set based on the `type` if not defined |
-| transform | (value: any, originalRowData: any) => any? | An optional function that can be used apply a transformation to final shape of the particular field item. See below for more. |
-| validate | (value: any, originalRowData: any) => boolean? | An optional function that can be used to validate the value of a field. If retunrning `false`, the item will be withheld from the final output. See below for more. |
+| transform | (value: any, originalRowData: any) => Promise\<any\>? | An optional asynchronous function that can be used apply a transformation to final shape of the particular field item. See below for more. |
+| validate | (value: any, originalRowData: any) => Promise\<boolean\>? | An optional asynchronous function that can be used to validate the value of a field. If retunrning `false`, the item will be withheld from the final output. See below for more. |
 | isPageTitle | boolean? | Set this to `true` if the field refers to the column that Notion uses internally for the page title. This should be set on exactly 1 field. |
 </details>
 <details>
@@ -76,6 +77,8 @@ The lotion.config.js file should be defined with the following properties.
 | image | SchemaFile | `{...}` | Notion file elements. Same as `images`, but output is a single item |
 | options | string[] | `[]` | Notion multi-select elements. |
 | option | string | `''` | Notion multi-select elements. Same as `options`, but output is a single `string` |
+| relations | string[] | `[]` | Notion relation elements. Will be flattened to an array of Notion page `id` values |
+| relation | string | `''` | Notion relation elements. Same as `relations`, but output is a single `id` |
 </details>
 
 <details>
