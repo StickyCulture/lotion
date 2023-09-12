@@ -14,6 +14,7 @@ export enum LotionLogLevel {
 
 export type LotionFieldType =
    | 'uuid'
+   | 'title'
    | 'text'
    | 'richText'
    | 'number'
@@ -24,14 +25,15 @@ export type LotionFieldType =
    | 'image'
    | 'options'
    | 'option'
+   | 'relation'
+   | 'relations'
 
 export interface LotionInput {
    field: string
    type: LotionFieldType
    default?: any
-   isPageTitle?: boolean
-   validate?: (value: any, item: any) => boolean
-   transform?: (value: any, item: any) => any
+   validate?: (value: any, item: any) => Promise<boolean>
+   transform?: (value: any, item: any) => Promise<any>
 }
 
 export interface LotionConfig {
@@ -42,6 +44,7 @@ export interface LotionConfig {
    logLevel: LotionLogLevel
    input: LotionInput[]
    schema: { [key: string]: string | object }
+   postProcess?: (data: any) => Promise<any>
 }
 
 export interface SchemaFile {
@@ -50,4 +53,8 @@ export interface SchemaFile {
    extension: string
    width: number
    height: number
+}
+
+export interface FilteredRow {
+   [field: string]: any
 }

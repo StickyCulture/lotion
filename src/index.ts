@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { configDotenv } from 'dotenv'
-import { cosmiconfig } from 'cosmiconfig'
+import { cosmiconfig, CosmiconfigResult } from 'cosmiconfig'
 
 import Logger from './utils/logger'
 import { getAllNotionData } from './utils/notion'
@@ -12,18 +12,22 @@ import { useJsonTemplate } from './template/json'
 import { useJavascriptTemplate } from './template/javascript'
 import { useTypescriptTemplate } from './template/typescript'
 
-import { LotionFieldType, LotionInput, LotionConfig, SchemaFile, LoggerLogLevel, LotionLogLevel } from './types'
+import { LotionFieldType, LotionInput, LotionConfig, SchemaFile, LoggerLogLevel, FilteredRow } from './types'
 import { sanitizeText } from './utils/text'
 
 const logger = new Logger()
 const explorer = cosmiconfig('lotion')
 
-let progress = ''
+let CONFIG_PATH_ABSOLUTE = ''
 let CONTENT_PATH_ABSOLUTE = ''
 let CONTENT_PATH_RELATIVE = ''
+let CONFIG: LotionConfig
+
+let progress = ''
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
+   title: '',
    text: '',
    richText: [],
    number: 0,
@@ -34,11 +38,13 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    image: '',
    options: [],
    option: '',
+   relation: '',
+   relations: [],
 }
 
-const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
-   const result: any = {}
-   inputDefinitions.forEach((input: LotionInput) => {
+const filterRow = (item: any): FilteredRow => {
+   const result: FilteredRow = {}
+   CONFIG.input.forEach((input: LotionInput) => {
       logger.verbose(`Getting raw input for ${input.field}`)
 
       if (input.field === 'id' && input.type === 'uuid') {
@@ -106,12 +112,80 @@ const getRawInput = (inputDefinitions: LotionInput[], item: any) => {
                result[input.field] = defaultValue
             }
             return
+         case 'relation':
+            // one one value is expected for this type
+            result[input.field] = rawValue.length > 0 ? rawValue[0].id : defaultValue
+            return
+         case 'relations':
+            // multiple values are allowed for this type
+            result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
+            return
          default:
             result[input.field] = rawValue
             return
       }
    })
    return result
+}
+
+const validateRow = async (row: FilteredRow): Promise<boolean> => {
+   let isValid = true
+   for (const { validate, field } of CONFIG.input) {
+      if (!validate) continue
+
+      const value = row[field]
+      logger.verbose(`Validating (${value}) for ${field}`)
+      const result = await validate(value, row)
+      if (!result) {
+         isValid = false
+         logger.warn(`Input for '${field}' is invalid.`)
+      }
+   }
+   return isValid
+}
+
+const transformRow = async (row: FilteredRow): Promise<FilteredRow> => {
+   const transformed: FilteredRow = {}
+   for await (const definition of CONFIG.input) {
+      // save local files before transforming
+      switch (definition.type) {
+         case 'file':
+         case 'image':
+            let fileData: SchemaFile = await saveFileLocally(
+               row[definition.field],
+               CONTENT_PATH_ABSOLUTE,
+               [row.id, sanitizeText(definition.field), 0].join('_')
+            )
+            fileData.path = CONTENT_PATH_RELATIVE || fileData.path
+            row[definition.field] = fileData
+            break
+         case 'files':
+         case 'images':
+            row[definition.field] = await Promise.all(
+               row[definition.field].map(async (remoteUrl: string, index: number) => {
+                  let fileData: SchemaFile = await saveFileLocally(
+                     remoteUrl,
+                     CONTENT_PATH_ABSOLUTE,
+                     [row.id, sanitizeText(definition.field), index].join('_')
+                  )
+                  fileData.path = CONTENT_PATH_RELATIVE || fileData.path
+                  return fileData
+               })
+            )
+            break
+         default:
+            break
+      }
+
+      // transform the input
+      if (definition.transform) {
+         logger.verbose(`Transforming ${definition.type} for ${definition.field}`)
+         transformed[definition.field] = await definition.transform(row[definition.field], row)
+      } else {
+         transformed[definition.field] = row[definition.field]
+      }
+   }
+   return transformed
 }
 
 const reshapeObject = (input: any, schema: any): any => {
@@ -137,169 +211,68 @@ const reshapeObject = (input: any, schema: any): any => {
    return reshaped
 }
 
-const main = async () => {
-   let configFile: any
-   let config: LotionConfig = {} as LotionConfig
-
-   try {
-      configFile = await explorer.search()
-      if (configFile.isEmpty) {
-         throw new Error('No lotion configuration found. Aborting.')
-      }
-      config = configFile.config
-   } catch (err) {
-      logger.error(err)
-      return
+const getConfiguration = async () => {
+   const cosmic: CosmiconfigResult = await explorer.search()
+   if (cosmic.isEmpty) {
+      throw new Error('No lotion configuration found. Aborting.')
    }
+
+   CONFIG = cosmic.config
 
    // set the log level
-   if (config.logLevel) {
-      logger.logLevel = LoggerLogLevel[config.logLevel.toUpperCase() as keyof typeof LoggerLogLevel]
+   if (CONFIG.logLevel) {
+      logger.logLevel = LoggerLogLevel[CONFIG.logLevel.toUpperCase() as keyof typeof LoggerLogLevel]
    }
 
-   logger.info(`Found lotion configuration at ${configFile.filepath}`)
+   CONFIG_PATH_ABSOLUTE = path.dirname(cosmic.filepath)
+   if (!CONFIG_PATH_ABSOLUTE) {
+      throw new Error('Could not determine the absolute path of the configuration file. Aborting.')
+   }
+   logger.info(`Found lotion configuration at ${cosmic.filepath}`)
 
-   if (config.envFile) {
-      const envPath = path.join(path.dirname(configFile.filepath), config.envFile)
+   // load environment variables
+   if (CONFIG.envFile) {
+      const envPath = path.join(CONFIG_PATH_ABSOLUTE, CONFIG.envFile)
       logger.info(`Loading environment variables from ${envPath}`)
       configDotenv({ path: envPath })
    }
 
-   logger.info('Applying lotion...')
-
-   // get all data from notion
-   const notionData = await getAllNotionData(config.database, process.env.NOTION_TOKEN)
-
-   // get the field that is the page title
-   const pageTitleField = (config.input.find(input => input.isPageTitle) || { field: 'id' }).field
-
-   // make sure outputFiles are specified and of type 'json' |'js' | 'ts'
-   if (!config.outputFiles || !config.outputFiles.length) {
-      logger.error('No output files specified. Aborting.')
-      return
+   // make sure outputFiles exist
+   if (!CONFIG.outputFiles || !CONFIG.outputFiles.length) {
+      throw new Error('No output files specified. Aborting.')
    }
+
+   // make sure outputFiles are of type json, js, or ts
    if (
-      !config.outputFiles.every(
+      !CONFIG.outputFiles.every(
          (file: string) => file.endsWith('.json') || file.endsWith('.js') || file.endsWith('.ts')
       )
    ) {
-      logger.error('Output files must be of type json, js, or ts. Aborting.')
-      return
+      throw new Error('Output files must be of type json, js, or ts. Aborting.')
    }
 
    // if the config.input contains a file(s) or image(s) field, make sure the contentDir is specified
    if (
-      config.input.some((input: LotionInput) => input.type.includes('file') || input.type.includes('image')) &&
-      !config.contentDir
+      CONFIG.input.some((input: LotionInput) => input.type.includes('file') || input.type.includes('image')) &&
+      !CONFIG.contentDir
    ) {
-      logger.error('A content directory must be specified if the input contains a file or image field. Aborting.')
-      return
+      throw new Error('A content directory must be specified if the input contains a file or image field. Aborting.')
    }
 
    // create the content directory if it doesn't exist
-   if (config.contentDir) {
-      CONTENT_PATH_RELATIVE = config.contentDir
-      CONTENT_PATH_ABSOLUTE = path.join(path.dirname(configFile.filepath), config.contentDir)
+   if (CONFIG.contentDir) {
+      CONTENT_PATH_RELATIVE = CONFIG.contentDir
+      CONTENT_PATH_ABSOLUTE = path.join(CONFIG_PATH_ABSOLUTE, CONFIG.contentDir)
       if (!fs.existsSync(CONTENT_PATH_ABSOLUTE)) {
-         logger.quiet(`Creating content directory at ${CONTENT_PATH_ABSOLUTE}`)
+         logger.info(`Creating content directory at ${CONTENT_PATH_ABSOLUTE}`)
          fs.mkdirSync(CONTENT_PATH_ABSOLUTE, { recursive: true })
       }
    }
+}
 
-   const formattedData = []
-   let numInvalid = 0
-   let index = 0
-
-   for await (const item of notionData as any) {
-      index++
-      logger.indent = 0
-
-      progress = logger.getProgress(index, notionData.length)
-      if (!item.properties) {
-         logger.quiet(`${progress} Item ${item.id} has no properties. Skipping.`)
-         continue
-      }
-
-      const pageTitle =
-         pageTitleField === 'id'
-            ? item.id
-            : item.properties[pageTitleField].title.length
-            ? item.properties[pageTitleField].title[0].plain_text
-            : item.id
-      logger.quiet(`${progress} Processing item for ${pageTitle}`)
-      logger.indent = progress.length + 1
-
-      // get raw input
-      const rawInput: any = getRawInput(config.input, item)
-
-      // validate input
-      let isValid = true
-      for await (const definition of config.input) {
-         // logger.quiet(`Validating (${rawInput[definition.field]}) for ${definition.field}`)
-         if (definition.validate && !definition.validate(rawInput[definition.field], rawInput)) {
-            isValid = false
-            logger.warn(`Input for '${definition.field}' is invalid.`)
-         }
-      }
-      // skip if invalid
-      if (!isValid) {
-         numInvalid++
-         continue
-      }
-
-      // perform transformations
-      const transformedInput: any = {}
-      for await (const definition of config.input) {
-         // save local files before transforming
-         switch (definition.type) {
-            case 'file':
-            case 'image':
-               let fileData: SchemaFile = await saveFileLocally(
-                  rawInput[definition.field],
-                  CONTENT_PATH_ABSOLUTE,
-                  [rawInput.id, sanitizeText(definition.field), 0].join('_')
-               )
-               fileData.path = CONTENT_PATH_RELATIVE || fileData.path
-               rawInput[definition.field] = fileData
-               break
-            case 'files':
-            case 'images':
-               rawInput[definition.field] = await Promise.all(
-                  rawInput[definition.field].map(async (remoteUrl: string, index: number) => {
-                     let fileData: SchemaFile = await saveFileLocally(
-                        remoteUrl,
-                        CONTENT_PATH_ABSOLUTE,
-                        [rawInput.id, sanitizeText(definition.field), index].join('_')
-                     )
-                     fileData.path = CONTENT_PATH_RELATIVE || fileData.path
-                     return fileData
-                  })
-               )
-               break
-            default:
-               break
-         }
-
-         // transform the input
-         if (definition.transform) {
-            logger.verbose(`Transforming ${definition.type} for ${definition.field}`)
-            transformedInput[definition.field] = definition.transform(rawInput[definition.field], rawInput)
-         } else {
-            transformedInput[definition.field] = rawInput[definition.field]
-         }
-      }
-
-      // reshape the transformed input to match the schema
-      const reshaped: any = reshapeObject(transformedInput, config.schema)
-
-      // add the reshaped input to the formatted data
-      formattedData.push(reshaped)
-   }
-   logger.indent = 0
-
-   // write the formatted data to the output files
-   for await (const file of config.outputFiles) {
-      const filePath = path.join(path.dirname(configFile.filepath), file)
+const createOutputFiles = async (formattedData: any) => {
+   for await (const file of CONFIG.outputFiles) {
+      const filePath = path.join(CONFIG_PATH_ABSOLUTE, file)
       logger.info(`Writing data to ${filePath}`)
       // get the file extension
       const fileExtension = path.extname(filePath)
@@ -312,13 +285,84 @@ const main = async () => {
             useJavascriptTemplate(formattedData, filePath)
             break
          case '.ts':
-            useTypescriptTemplate(formattedData, filePath, config)
+            useTypescriptTemplate(formattedData, filePath, CONFIG)
             break
          default:
-            logger.error(`Unsupported file extension ${fileExtension}. Aborting.`)
+            logger.error(`Unsupported file extension ${fileExtension}. Did not write create file.`)
             return
       }
    }
+}
+
+const main = async () => {
+   // handle configuration
+   try {
+      await getConfiguration()
+   } catch (error) {
+      logger.error(error.message)
+      return
+   }
+
+   // get all data from notion
+   logger.info('Gathering data from Notion...')
+   const notionData = await getAllNotionData(CONFIG.database, process.env.NOTION_TOKEN)
+
+   // get the field that is the page title
+   const pageTitleField = (CONFIG.input.find(input => input.type === 'title') || { field: 'id' }).field
+   logger.verbose(`Using "${pageTitleField}" as page title field`)
+
+   let formattedData = []
+   let numInvalid = 0
+   let index = 0
+
+   for await (const row of notionData as any) {
+      index++
+      logger.indent = 0
+
+      progress = logger.getProgress(index, notionData.length)
+      if (!row.properties) {
+         logger.quiet(`${progress} Item ${row.id} has no properties. Skipping.`)
+         continue
+      }
+
+      const pageTitle =
+         pageTitleField === 'id'
+            ? row.id
+            : row.properties[pageTitleField][row.properties[pageTitleField].type].length
+            ? row.properties[pageTitleField][row.properties[pageTitleField].type][0].plain_text
+            : row.id
+      logger.quiet(`${progress} Processing item for ${pageTitle}`)
+      logger.indent = progress.length + 1
+
+      // filter the raw data
+      const filteredRow: FilteredRow = filterRow(row)
+
+      // skip if invalid
+      const isValid = await validateRow(filteredRow)
+      if (!isValid) {
+         numInvalid++
+         continue
+      }
+
+      // perform transformations
+      const transformedRow: FilteredRow = await transformRow(filteredRow)
+
+      // reshape the transformed input to match the schema
+      const reshapedRow: any = reshapeObject(transformedRow, CONFIG.schema)
+
+      // add the reshaped input to the formatted data
+      formattedData.push(reshapedRow)
+   }
+   logger.indent = 0
+
+   // post process the data
+   if (CONFIG.postProcess) {
+      logger.info('Running post-processing action on data...')
+      formattedData = await CONFIG.postProcess(formattedData)
+   }
+
+   // write the formatted data to the output files
+   await createOutputFiles(formattedData)
 
    logger.break()
    logger.success(`Processed ${formattedData.length} items.`)
