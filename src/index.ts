@@ -37,6 +37,8 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    image: '',
    options: [],
    option: '',
+   relation: '',
+   relations: [],
 }
 
 const filterRow = (item: any): FilteredRow => {
@@ -108,6 +110,14 @@ const filterRow = (item: any): FilteredRow => {
             } else {
                result[input.field] = defaultValue
             }
+            return
+         case 'relation':
+            // one one value is expected for this type
+            result[input.field] = rawValue.length > 0 ? rawValue[0].id : defaultValue
+            return
+         case 'relations':
+            // multiple values are allowed for this type
+            result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
             return
          default:
             result[input.field] = rawValue

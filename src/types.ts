@@ -24,6 +24,8 @@ export type LotionFieldType =
    | 'image'
    | 'options'
    | 'option'
+   | 'relation'
+   | 'relations'
 
 export interface LotionInput {
    field: string
