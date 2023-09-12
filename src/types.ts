@@ -47,6 +47,21 @@ export interface LotionConfig {
    postProcess?: (data: any) => Promise<any>
 }
 
+export interface LotionPath {
+   absolute: string
+   relative: string
+}
+
+export interface LotionOutputPaths {
+   data: LotionPath
+   content: LotionPath
+}
+
+export interface LotionParams {
+   config: LotionConfig
+   outputPath: LotionOutputPaths
+}
+
 export interface SchemaFile {
    path: string
    name: string
@@ -57,4 +72,8 @@ export interface SchemaFile {
 
 export interface FilteredRow {
    [field: string]: any
+}
+
+export interface LotionCliOptions {
+   config?: string
 }

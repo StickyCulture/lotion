@@ -1,12 +1,12 @@
 {
   "name": "sticky-utils-lotion",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "copy a Notion database to a local place",
-  "main": "src/index.ts",
+  "main": "src/lotion.ts",
   "scripts": {
-    "cli": "cp dist/index.js dist/cli.js && echo '#!/usr/bin/env node' | cat - dist/cli.js > temp && mv temp dist/cli.js",
+    "cli": "echo '#!/usr/bin/env node' | cat - dist/cli.js > temp && mv temp dist/cli.js",
     "build": "tsc -p tsconfig.json && yarn run cli",
-    "test": "yarn run build && node dist/index.js",
+    "test": "yarn run build && node dist/cli.js",
     "prepare": "yarn run build"
   },
   "bin": {
@@ -27,6 +27,7 @@
     "calipers-jpeg": "^3.0.0",
     "calipers-png": "^3.0.0",
     "colorette": "^2.0.20",
+    "commander": "^11.0.0",
     "cosmiconfig": "^8.3.4",
     "dotenv": "^16.3.1"
   }
