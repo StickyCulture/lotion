@@ -300,7 +300,7 @@ const main = async () => {
    const pageTitleField = (CONFIG.input.find(input => input.isPageTitle) || { field: 'id' }).field
    logger.verbose(`Using "${pageTitleField}" as page title field`)
 
-   const formattedData = []
+   let formattedData = []
    let numInvalid = 0
    let index = 0
 
@@ -343,6 +343,12 @@ const main = async () => {
       formattedData.push(reshapedRow)
    }
    logger.indent = 0
+
+   // post process the data
+   if (CONFIG.postProcess) {
+      logger.info('Running post-processing action on data...')
+      formattedData = await CONFIG.postProcess(formattedData)
+   }
 
    // write the formatted data to the output files
    await createOutputFiles(formattedData)

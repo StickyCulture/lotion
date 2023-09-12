@@ -42,6 +42,7 @@ export interface LotionConfig {
    logLevel: LotionLogLevel
    input: LotionInput[]
    schema: { [key: string]: string | object }
+   postProcess?: (data: any) => Promise<any>
 }
 
 export interface SchemaFile {
