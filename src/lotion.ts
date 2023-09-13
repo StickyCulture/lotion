@@ -140,6 +140,7 @@ class Lotion {
 
          logger.verbose(rawValue)
          switch (input.type) {
+            case 'title':
             case 'text':
                // convert the original array to a plaintext string
                result[input.field] = rawValue.length
