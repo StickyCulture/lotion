@@ -2,10 +2,11 @@ import fs from 'fs'
 import path from 'path'
 import fetch from 'node-fetch'
 
+import logger from './logger'
 import { sanitizeText } from './text'
 import { measureImage } from './image'
 
-import { SchemaFile } from 'src/types'
+import { LoggerLogLevel, SchemaFile } from '../types'
 
 const splitExtension = (filename: string) => {
    const split = filename.split('.')
@@ -58,13 +59,17 @@ export const saveFileLocally = async (
    fs.writeFileSync(absolutePath, Buffer.from(fileBuffer))
 
    // if an image, get width and height
-   if (extension.match(/(jpg|jpeg|png)/)) {
+   if (extension.match(/(jpg|jpeg|png|webp)/)) {
       try {
          const measured: any = await measureImage(absolutePath)
          result.width = measured.pages[0].width
          result.height = measured.pages[0].height
       } catch (err) {
-         console.error(err)
+         if (logger.logLevel >= LoggerLogLevel.DEBUG) {
+            logger.verbose(err)
+         } else {
+            logger.error(`Error measuring image: ${err.message}`)
+         }
       }
    }
 
