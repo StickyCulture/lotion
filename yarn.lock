@@ -122,6 +122,11 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
+bluebird@3.x.x:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
+  integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
+
 calipers-jpeg@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/calipers-jpeg/-/calipers-jpeg-3.0.0.tgz#8785da7e113f3d3f644ccb8f9465ebd3f60a8cdd"
@@ -131,6 +136,13 @@ calipers-png@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/calipers-png/-/calipers-png-3.0.0.tgz#286c9a142582d24dd4a2bc647fb0fd1504fe4ae4"
   integrity sha512-Fm09ARic4nIHbAoWtF14vxKaygJxjuXZ7+MhXvaAeWFfq9aSefYEmDT1zj6fp1zhwb9eUcj1yUH5w+1ZruOdyQ==
+
+calipers-webp@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/calipers-webp/-/calipers-webp-2.0.0.tgz#e126ece2f84cd71779612bfa2b2653cd95cea77a"
+  integrity sha512-np7ZtCwUjpxz+DF/RYNYFxxaltJxlF7rIVKWnU/cKcgQ7r06/Fquw1Q/oMZiJe6hfjI911lhDY6ZC+X0MtA5rg==
+  dependencies:
+    bluebird "3.x.x"
 
 calipers@^3.0.0:
   version "3.0.0"
