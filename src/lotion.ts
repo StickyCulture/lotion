@@ -100,6 +100,7 @@ class Lotion {
       }
       logger.indent = 0
 
+      const totalProcessed = formattedData.length
       // post process the data
       if (this.config.postProcess) {
          logger.info('Running post-processing action on data...')
@@ -110,7 +111,7 @@ class Lotion {
       await this.createOutputFiles(formattedData)
 
       logger.break()
-      logger.success(`Processed ${formattedData.length} items.`)
+      logger.success(`Processed ${totalProcessed} items.`)
       if (numInvalid > 0) {
          logger.warn(`${numInvalid} items were invalid and skipped. See above for details.`)
       }
