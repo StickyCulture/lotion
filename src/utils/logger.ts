@@ -61,7 +61,7 @@ class Logger {
    }
 
    private getIndent = (indentOverride?: number) =>
-      ' '.repeat(typeof indentOverride === undefined ? this.indent : indentOverride)
+      ' '.repeat(typeof indentOverride === 'undefined' ? this.indent : indentOverride)
 }
 
 export default Logger.getInstance()

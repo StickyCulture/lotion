@@ -41,6 +41,7 @@ class Lotion {
    private outputPath: LotionOutputPaths
 
    private progress: string = ''
+   private currentTitle: string = ''
 
    constructor({ config, outputPath }: LotionParams) {
       this.config = config
@@ -70,13 +71,13 @@ class Lotion {
             continue
          }
 
-         const pageTitle =
+         this.currentTitle =
             pageTitleField === 'id'
                ? row.id
                : row.properties[pageTitleField][row.properties[pageTitleField].type].length
                ? row.properties[pageTitleField][row.properties[pageTitleField].type][0].plain_text
                : row.id
-         logger.quiet(`${this.progress} Processing item for ${pageTitle}`)
+         logger.quiet(`${this.progress} Processing item for ${this.currentTitle}`)
          logger.indent = this.progress.length + 1
 
          // filter the raw data
@@ -100,6 +101,7 @@ class Lotion {
       }
       logger.indent = 0
 
+      const totalProcessed = formattedData.length
       // post process the data
       if (this.config.postProcess) {
          logger.info('Running post-processing action on data...')
@@ -110,7 +112,7 @@ class Lotion {
       await this.createOutputFiles(formattedData)
 
       logger.break()
-      logger.success(`Processed ${formattedData.length} items.`)
+      logger.success(`Processed ${totalProcessed} items.`)
       if (numInvalid > 0) {
          logger.warn(`${numInvalid} items were invalid and skipped. See above for details.`)
       }
@@ -209,11 +211,11 @@ class Lotion {
          if (!validate) continue
 
          const value = row[field]
-         logger.verbose(`Validating (${value}) for ${field}`)
+         logger.verbose(`Validating (${value}) for ${field} (${this.currentTitle})`)
          const result = await validate(value, row)
          if (!result) {
             isValid = false
-            logger.warn(`Input for '${field}' is invalid.`)
+            logger.warn(`Validation check for '${field}' failed (${this.currentTitle})`)
          }
       }
       return isValid
@@ -254,7 +256,7 @@ class Lotion {
 
          // transform the input
          if (definition.transform) {
-            logger.verbose(`Transforming ${definition.type} for ${definition.field}`)
+            logger.verbose(`Transforming ${definition.type} for ${definition.field} (${this.currentTitle})`)
             transformed[definition.field] = await definition.transform(row[definition.field], row)
          } else {
             transformed[definition.field] = row[definition.field]
