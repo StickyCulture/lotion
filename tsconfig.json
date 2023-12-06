@@ -17,6 +17,6 @@
 			"src/*": ["src/*"]
 		}
 	},
-	"include": ["src/**/*", "index.d.ts"],
+	"include": ["src/**/*"],
 	"exclude": [".git", "dist", "node_modules", "public"]
 }
