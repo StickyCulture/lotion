@@ -20,6 +20,7 @@
 - [LotionImport](../interfaces/types.LotionImport.md)
 - [SchemaFile](../interfaces/types.SchemaFile.md)
 - [SchemaIndex](../interfaces/types.SchemaIndex.md)
+- [SchemaRichText](../interfaces/types.SchemaRichText.md)
 
 ### Type Aliases
 
@@ -35,17 +36,17 @@
 
 #### Defined in
 
-[src/types.ts:71](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L71)
+[src/types.ts:72](https://github.com/sticky/sticky-utils-lotion/blob/0655f7a/src/types.ts#L72)
 
 ___
 
 ### LotionFieldType
 
-Ƭ **LotionFieldType**: ``"uuid"`` \| ``"index"`` \| ``"title"`` \| ``"text"`` \| ``"richText"`` \| ``"number"`` \| ``"boolean"`` \| ``"files"`` \| ``"file"`` \| ``"images"`` \| ``"image"`` \| ``"options"`` \| ``"option"`` \| ``"relation"`` \| ``"relations"``
+Ƭ **LotionFieldType**: ``"uuid"`` \| ``"index"`` \| ``"title"`` \| ``"text"`` \| ``"richText"`` \| ``"number"`` \| ``"boolean"`` \| ``"files"`` \| ``"file"`` \| ``"images"`` \| ``"image"`` \| ``"options"`` \| ``"option"`` \| ``"relation"`` \| ``"relations"`` \| ``"blocks"``
 
 #### Defined in
 
-[src/types.ts:17](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L17)
+[src/types.ts:17](https://github.com/sticky/sticky-utils-lotion/blob/0655f7a/src/types.ts#L17)
 
 ___
 
@@ -64,4 +65,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:100](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L100)
+[src/types.ts:107](https://github.com/sticky/sticky-utils-lotion/blob/0655f7a/src/types.ts#L107)

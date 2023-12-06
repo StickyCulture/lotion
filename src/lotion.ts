@@ -6,6 +6,7 @@ import {
    createPage,
    formatExportData,
    getAllNotionData,
+   getAllPageBlocks,
    getDatabase,
    getPage,
    updatePageProperties,
@@ -16,15 +17,7 @@ import { useJsonTemplate } from './template/json'
 import { useJavascriptTemplate } from './template/javascript'
 import { useTypescriptTemplate } from './template/typescript'
 
-import {
-   LotionFieldType,
-   LotionField,
-   SchemaFile,
-   FilteredRow,
-   LotionFieldExport,
-   SchemaIndex,
-   LotionConstructor,
-} from './types'
+import { LotionFieldType, SchemaFile, FilteredRow, LotionFieldExport, SchemaIndex, LotionConstructor } from './types'
 import { sanitizeText } from './utils/text'
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
@@ -43,6 +36,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    option: '',
    relation: '',
    relations: [],
+   blocks: [],
 }
 /**
  * Lotion is a class that allows you to import data from Notion into a JSON, JS, or TS file or as a JavaScript object in memory.
@@ -147,7 +141,6 @@ class Lotion {
     */
    public run = async () => {
       // test all fields
-      await this.testFields(this.config.import)
       if (this.config.export) {
          await this.testFields(this.config.export)
       }
@@ -189,7 +182,7 @@ class Lotion {
          logger.indent = this.progress.length + 1
 
          // filter the raw data
-         const filteredRow: FilteredRow = this.filterRow(row)
+         const filteredRow: FilteredRow = await this.filterRow(row)
 
          // skip if invalid
          const isValid = await this.validateRow(filteredRow)
@@ -260,14 +253,20 @@ class Lotion {
       }
    }
 
-   private filterRow = (item: any): FilteredRow => {
+   private filterRow = async (item: any): Promise<FilteredRow> => {
       const result: FilteredRow = {}
-      this.config.import.fields.forEach((input: LotionField) => {
+      for await (const input of this.config.import.fields) {
          logger.verbose(`Getting raw input for ${input.field}`)
 
          if (input.field === 'id' && input.type === 'uuid') {
             result[input.field] = item.id
-            return
+            continue
+         }
+
+         if (input.type === 'blocks') {
+            result[input.field] = await getAllPageBlocks(item.id, this.config.import.token)
+            logger.verbose(result[input.field])
+            continue
          }
 
          const defaultValue = input.default || UNKNOWN_DEFAULTS[input.type]
@@ -276,7 +275,7 @@ class Lotion {
          if (!item.properties[input.field]) {
             logger.warn(`Field ${input.field} not found in item. Using default value.`)
             result[input.field] = defaultValue
-            return
+            continue
          }
 
          // if the field is a property of item.properties object, return its raw or default value
@@ -300,7 +299,7 @@ class Lotion {
                result[input.field] = rawValue.length
                   ? rawValue.map((value: any) => value.plain_text).join('')
                   : defaultValue
-               return
+               break
             case 'richText':
                // this is a special case because the raw value is an array of objects
                result[input.field] = rawValue.length
@@ -310,12 +309,12 @@ class Lotion {
                        annotations: value.annotations,
                     }))
                   : defaultValue
-               return
+               break
             case 'file':
             case 'image':
                // only one value is expected for these types
                result[input.field] = rawValue.length > 0 ? rawValue[0].file.url : defaultValue
-               return
+               break
             case 'option':
                // only one value is expected for this types
                if (property.type === 'multi_select') {
@@ -325,12 +324,12 @@ class Lotion {
                } else {
                   result[input.field] = defaultValue
                }
-               return
+               break
             case 'files':
             case 'images':
                // multiple values are allowed for these types
                result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.file.url) : defaultValue
-               return
+               break
             case 'options':
                // multiple values are allowed for these types
                if (property.type === 'multi_select') {
@@ -340,20 +339,20 @@ class Lotion {
                } else {
                   result[input.field] = defaultValue
                }
-               return
+               break
             case 'relation':
                // one one value is expected for this type
                result[input.field] = rawValue.length > 0 ? rawValue[0].id : defaultValue
-               return
+               break
             case 'relations':
                // multiple values are allowed for this type
                result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
-               return
+               break
             default:
                result[input.field] = rawValue
-               return
+               break
          }
-      })
+      }
       return result
    }
 

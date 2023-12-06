@@ -195,3 +195,26 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
          return undefined
    }
 }
+
+export const getAllPageBlocks = async (block_id: string, token: string) => {
+   const NOTION = new NotionClient({ auth: token })
+
+   let response = await NOTION.blocks.children.list({
+      block_id,
+   })
+   const results = response.results
+
+   while (response.has_more) {
+      try {
+         response = await NOTION.blocks.children.list({
+            block_id,
+            start_cursor: response.next_cursor,
+         })
+         results.push(...response.results)
+      } catch (e) {
+         console.error(e)
+      }
+   }
+
+   return results
+}

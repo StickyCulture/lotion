@@ -77,10 +77,12 @@ The lotion.config.js file should be defined with the following properties.
 | Property | Type | Description |
 | --- | --- | --- |
 | field | string | The name of the data column in Notion. It should match exactly. |
-| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `index`, `title`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`, `relations`, `relation`. |
+| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `index`, `title`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`, `relations`, `relation`, or `blocks`[^2]. |
 | default | any? | A default value to use if the field is empty. This is optional and will be set based on the `type` if not defined |
 | transform | (value: any, originalRowData: any) => Promise\<any\>? | An optional asynchronous function that can be used apply a transformation to final shape of the particular field item. See below for more. |
 | validate | (value: any, originalRowData: any) => Promise\<boolean\>? | An optional asynchronous function that can be used to validate the value of a field. If retunrning `false`, the item will be withheld from the final output. See below for more. |
+
+[^2]: The `blocks` type will get the internal Blocks array for the Notion Page. The values are currently returned as-is from the Notion API. This is a work in progress and will likely change to include default transformations in the future. For now, you can use the `validate` and `transform` functions to customize the output.
 </details>
 
 <details>

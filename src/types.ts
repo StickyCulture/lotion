@@ -30,6 +30,7 @@ export type LotionFieldType =
    | 'option'
    | 'relation'
    | 'relations'
+   | 'blocks'
 
 export interface LotionField {
    field: string
