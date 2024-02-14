@@ -51,10 +51,10 @@ class Lotion {
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.database, process.env.NOTION_TOKEN)
+      const notionData = await getAllNotionData(this.config.input.database, process.env.NOTION_TOKEN)
 
       // get the field that is the page title
-      const pageTitleField = (this.config.input.find(input => input.type === 'title') || { field: 'id' }).field
+      const pageTitleField = (this.config.input.fields.find(input => input.type === 'title') || { field: 'id' }).field
       logger.verbose(`Using "${pageTitleField}" as page title field`)
 
       let formattedData = []
@@ -94,7 +94,7 @@ class Lotion {
          const transformedRow: FilteredRow = await this.transformRow(filteredRow)
 
          // reshape the transformed input to match the schema
-         const reshapedRow: any = this.reshapeObject(transformedRow, this.config.schema)
+         const reshapedRow: any = this.reshapeObject(transformedRow, this.config.input.schema)
 
          // add the reshaped input to the formatted data
          formattedData.push(reshapedRow)
@@ -103,9 +103,9 @@ class Lotion {
 
       const totalProcessed = formattedData.length
       // post process the data
-      if (this.config.postProcess) {
+      if (this.config.input.postProcess) {
          logger.info('Running post-processing action on data...')
-         formattedData = await this.config.postProcess(formattedData)
+         formattedData = await this.config.input.postProcess(formattedData)
       }
 
       // write the formatted data to the output files
@@ -120,7 +120,7 @@ class Lotion {
 
    private filterRow = (item: any): FilteredRow => {
       const result: FilteredRow = {}
-      this.config.input.forEach((input: LotionInput) => {
+      this.config.input.fields.forEach((input: LotionInput) => {
          logger.verbose(`Getting raw input for ${input.field}`)
 
          if (input.field === 'id' && input.type === 'uuid') {
@@ -207,7 +207,7 @@ class Lotion {
 
    private validateRow = async (row: FilteredRow): Promise<boolean> => {
       let isValid = true
-      for (const { validate, field } of this.config.input) {
+      for (const { validate, field } of this.config.input.fields) {
          if (!validate) continue
 
          const value = row[field]
@@ -223,7 +223,7 @@ class Lotion {
 
    private transformRow = async (row: FilteredRow): Promise<FilteredRow> => {
       const transformed: FilteredRow = {}
-      for await (const definition of this.config.input) {
+      for await (const definition of this.config.input.fields) {
          // save local files before transforming
          switch (definition.type) {
             case 'file':

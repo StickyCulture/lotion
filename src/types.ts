@@ -38,13 +38,15 @@ export interface LotionInput {
 
 export interface LotionConfig {
    envFile?: string
-   database: string
    contentDir?: string
    outputFiles: string[]
    logLevel: LotionLogLevel
-   input: LotionInput[]
-   schema: { [key: string]: string | object }
-   postProcess?: (data: any) => Promise<any>
+   input: {
+      database: string
+      fields: LotionInput[]
+      schema: { [key: string]: string | object }
+      postProcess?: (data: any) => Promise<any>
+   }
 }
 
 export interface LotionPath {

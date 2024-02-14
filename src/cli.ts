@@ -68,7 +68,7 @@ const getConfiguration = async (options: LotionCliOptions) => {
 
    // if the config.input contains a file(s) or image(s) field, make sure the contentDir is specified
    if (
-      CONFIG.input.some((input: LotionInput) => input.type.includes('file') || input.type.includes('image')) &&
+      CONFIG.input.fields.some((input: LotionInput) => input.type.includes('file') || input.type.includes('image')) &&
       !CONFIG.contentDir
    ) {
       throw new Error('A content directory must be specified if the input contains a file or image field. Aborting.')
