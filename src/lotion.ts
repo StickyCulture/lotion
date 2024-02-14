@@ -10,7 +10,7 @@ import { useTypescriptTemplate } from './template/typescript'
 
 import {
    LotionFieldType,
-   LotionInput,
+   LotionField,
    LotionConfig,
    SchemaFile,
    FilteredRow,
@@ -51,10 +51,10 @@ class Lotion {
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.input.database, process.env.NOTION_TOKEN)
+      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN)
 
       // get the field that is the page title
-      const pageTitleField = (this.config.input.fields.find(input => input.type === 'title') || { field: 'id' }).field
+      const pageTitleField = (this.config.import.fields.find(input => input.type === 'title') || { field: 'id' }).field
       logger.verbose(`Using "${pageTitleField}" as page title field`)
 
       let formattedData = []
@@ -94,7 +94,7 @@ class Lotion {
          const transformedRow: FilteredRow = await this.transformRow(filteredRow)
 
          // reshape the transformed input to match the schema
-         const reshapedRow: any = this.reshapeObject(transformedRow, this.config.input.schema)
+         const reshapedRow: any = this.reshapeObject(transformedRow, this.config.import.schema)
 
          // add the reshaped input to the formatted data
          formattedData.push(reshapedRow)
@@ -103,9 +103,9 @@ class Lotion {
 
       const totalProcessed = formattedData.length
       // post process the data
-      if (this.config.input.postProcess) {
+      if (this.config.import.postProcess) {
          logger.info('Running post-processing action on data...')
-         formattedData = await this.config.input.postProcess(formattedData)
+         formattedData = await this.config.import.postProcess(formattedData)
       }
 
       // write the formatted data to the output files
@@ -120,7 +120,7 @@ class Lotion {
 
    private filterRow = (item: any): FilteredRow => {
       const result: FilteredRow = {}
-      this.config.input.fields.forEach((input: LotionInput) => {
+      this.config.import.fields.forEach((input: LotionField) => {
          logger.verbose(`Getting raw input for ${input.field}`)
 
          if (input.field === 'id' && input.type === 'uuid') {
@@ -207,7 +207,7 @@ class Lotion {
 
    private validateRow = async (row: FilteredRow): Promise<boolean> => {
       let isValid = true
-      for (const { validate, field } of this.config.input.fields) {
+      for (const { validate, field } of this.config.import.fields) {
          if (!validate) continue
 
          const value = row[field]
@@ -223,7 +223,7 @@ class Lotion {
 
    private transformRow = async (row: FilteredRow): Promise<FilteredRow> => {
       const transformed: FilteredRow = {}
-      for await (const definition of this.config.input.fields) {
+      for await (const definition of this.config.import.fields) {
          // save local files before transforming
          switch (definition.type) {
             case 'file':

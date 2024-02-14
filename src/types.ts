@@ -28,7 +28,7 @@ export type LotionFieldType =
    | 'relation'
    | 'relations'
 
-export interface LotionInput {
+export interface LotionField {
    field: string
    type: LotionFieldType
    default?: any
@@ -36,17 +36,20 @@ export interface LotionInput {
    transform?: (value: any, item: any) => Promise<any>
 }
 
+export interface LotionOperation {
+   database: string
+   fields: LotionField[]
+   schema: { [key: string]: string | object }
+   postProcess?: (data: any) => Promise<any>
+}
+
 export interface LotionConfig {
    envFile?: string
    contentDir?: string
    outputFiles: string[]
    logLevel: LotionLogLevel
-   input: {
-      database: string
-      fields: LotionInput[]
-      schema: { [key: string]: string | object }
-      postProcess?: (data: any) => Promise<any>
-   }
+   import: LotionOperation
+   export?: LotionOperation
 }
 
 export interface LotionPath {

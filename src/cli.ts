@@ -8,7 +8,7 @@ import { configDotenv } from 'dotenv'
 import Lotion from './lotion'
 import logger from './utils/logger'
 
-import { LoggerLogLevel, LotionCliOptions, LotionConfig, LotionInput } from './types'
+import { LoggerLogLevel, LotionCliOptions, LotionConfig, LotionField } from './types'
 
 const program = new Command()
 const explorer = cosmiconfig('lotion')
@@ -68,7 +68,7 @@ const getConfiguration = async (options: LotionCliOptions) => {
 
    // if the config.input contains a file(s) or image(s) field, make sure the contentDir is specified
    if (
-      CONFIG.input.fields.some((input: LotionInput) => input.type.includes('file') || input.type.includes('image')) &&
+      CONFIG.import.fields.some((input: LotionField) => input.type.includes('file') || input.type.includes('image')) &&
       !CONFIG.contentDir
    ) {
       throw new Error('A content directory must be specified if the input contains a file or image field. Aborting.')
