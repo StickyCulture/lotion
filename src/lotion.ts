@@ -16,11 +16,9 @@ import {
    FilteredRow,
    LotionOutputPaths,
    LotionParams,
-   LotionImport,
    LotionFieldExport,
 } from './types'
 import { sanitizeText } from './utils/text'
-import { updatePage } from '@notionhq/client/build/src/api-endpoints'
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
