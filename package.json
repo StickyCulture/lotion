@@ -2,11 +2,13 @@
   "name": "sticky-utils-lotion",
   "version": "2.0.0",
   "description": "copy a Notion database to a local place",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "cli": "echo '#!/usr/bin/env node' | cat - dist/cli.js > temp && mv temp dist/cli.js",
     "build": "tsc -p tsconfig.json && yarn run cli",
-    "test": "yarn run build && node dist/cli.js",
+    "test:js": "yarn run build && node dist/index.js",
+    "test:cli": "yarn run build && node dist/cli.js",
     "prepare": "yarn run build"
   },
   "bin": {
