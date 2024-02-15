@@ -36,11 +36,20 @@ export interface LotionField {
    transform?: (value: any, item: any) => Promise<any>
 }
 
-export interface LotionOperation {
+export interface LotionFieldExport extends Pick<LotionField, 'field' | 'default' | 'type'> {
+   input: string
+}
+
+export interface LotionImport {
    database: string
    fields: LotionField[]
    schema: { [key: string]: string | object }
    postProcess?: (data: any) => Promise<any>
+}
+
+export interface LotionExport {
+   database: string
+   fields: LotionFieldExport[]
 }
 
 export interface LotionConfig {
@@ -48,8 +57,8 @@ export interface LotionConfig {
    contentDir?: string
    outputFiles: string[]
    logLevel: LotionLogLevel
-   import: LotionOperation
-   export?: LotionOperation
+   import: LotionImport
+   export?: LotionExport
 }
 
 export interface LotionPath {

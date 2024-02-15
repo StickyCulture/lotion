@@ -1,7 +1,7 @@
 import path from 'path'
 
 import logger from './utils/logger'
-import { getAllNotionData } from './utils/notion'
+import { createPage, formatExportData, getAllNotionData, getPage, updatePageProperties } from './utils/notion'
 import { saveFileLocally } from './utils/file'
 
 import { useJsonTemplate } from './template/json'
@@ -16,8 +16,11 @@ import {
    FilteredRow,
    LotionOutputPaths,
    LotionParams,
+   LotionImport,
+   LotionFieldExport,
 } from './types'
 import { sanitizeText } from './utils/text'
+import { updatePage } from '@notionhq/client/build/src/api-endpoints'
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
@@ -112,9 +115,13 @@ class Lotion {
       await this.createOutputFiles(formattedData)
 
       logger.break()
-      logger.success(`Processed ${totalProcessed} items.`)
+      logger.success(`Imported ${totalProcessed} items.`)
       if (numInvalid > 0) {
          logger.warn(`${numInvalid} items were invalid and skipped. See above for details.`)
+      }
+
+      if (this.config.export) {
+         await this.exportData(formattedData)
       }
    }
 
@@ -309,6 +316,45 @@ class Lotion {
                logger.error(`Unsupported file extension ${fileExtension}. Did not write create file.`)
                return
          }
+      }
+   }
+
+   private exportData = async (formattedData: any) => {
+      const notionData = []
+      for (const row of formattedData) {
+         const remappedRow: any = { properties: {} }
+         this.config.export.fields.forEach(({ field, input, type }: LotionFieldExport) => {
+            const reformattedData = formatExportData(row[input], type)
+            if (type === 'uuid') {
+               remappedRow.id = reformattedData
+               return
+            }
+            remappedRow.properties[field] = reformattedData
+         })
+         notionData.push(remappedRow)
+      }
+      logger.verbose('Remapped data for export:')
+      logger.verbose(notionData)
+
+      let updateIndex = 0
+      for await (const row of notionData) {
+         updateIndex++
+         this.progress = logger.getProgress(updateIndex, notionData.length)
+         this.currentTitle = row.id
+         logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
+
+         if (!row.id) {
+            await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+            continue
+         } else {
+            const existingPage = await getPage(process.env.NOTION_TOKEN, row.id)
+            if (!existingPage) {
+               await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+               continue
+            }
+         }
+
+         await updatePageProperties(process.env.NOTION_TOKEN, row.id, row.properties)
       }
    }
 }
