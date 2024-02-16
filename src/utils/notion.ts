@@ -65,7 +65,7 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
                {
                   type: 'text',
                   text: {
-                     content: data.toString(),
+                     content: `${data}`,
                   },
                },
             ],
@@ -73,17 +73,14 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
       case 'text':
       case 'richText':
          return {
-            rich_text: data
-               .toString()
-               .split('\n')
-               .map((text: string) => {
-                  return {
-                     type: 'text',
-                     text: {
-                        content: text,
-                     },
-                  }
-               }),
+            rich_text: `${data}`.split('\n').map((text: string) => {
+               return {
+                  type: 'text',
+                  text: {
+                     content: text,
+                  },
+               }
+            }),
          }
       case 'number':
          return {
@@ -101,7 +98,7 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
       case 'option':
          return {
             select: {
-               name: data.toString(),
+               name: `${data}`,
             },
          }
       case 'options':
@@ -118,13 +115,13 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
             return {
                multi_select: [
                   {
-                     name: data.toString(),
+                     name: `${data}`,
                   },
                ],
             }
          }
       case 'uuid':
-         return data.toString()
+         return `${data}`
       default:
          return data
    }
