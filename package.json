@@ -25,13 +25,10 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.13",
-    "calipers": "^3.0.0",
-    "calipers-jpeg": "^3.0.0",
-    "calipers-png": "^3.0.0",
-    "calipers-webp": "^2.0.0",
     "colorette": "^2.0.20",
     "commander": "^11.0.0",
     "cosmiconfig": "^8.3.4",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "image-size": "^1.0.2"
   }
 }

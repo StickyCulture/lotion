@@ -62,8 +62,8 @@ export const saveFileLocally = async (
    if (extension.match(/(jpg|jpeg|png|webp)/)) {
       try {
          const measured: any = await measureImage(absolutePath)
-         result.width = measured.pages[0].width
-         result.height = measured.pages[0].height
+         result.width = measured.width
+         result.height = measured.height
       } catch (err) {
          if (logger.logLevel >= LoggerLogLevel.DEBUG) {
             logger.verbose(err)
