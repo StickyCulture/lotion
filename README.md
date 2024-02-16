@@ -73,14 +73,14 @@ The lotion.config.js file should be defined with the following properties.
 | Property | Type | Description |
 | --- | --- | --- |
 | field | string | The name of the data column in Notion. It should match exactly. |
-| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `title`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`, `relations`, `relation`. |
+| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `index`, `title`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`, `relations`, `relation`. |
 | default | any? | A default value to use if the field is empty. This is optional and will be set based on the `type` if not defined |
 | transform | (value: any, originalRowData: any) => Promise\<any\>? | An optional asynchronous function that can be used apply a transformation to final shape of the particular field item. See below for more. |
 | validate | (value: any, originalRowData: any) => Promise\<boolean\>? | An optional asynchronous function that can be used to validate the value of a field. If retunrning `false`, the item will be withheld from the final output. See below for more. |
 </details>
 
 <details>
-<summary>ImportFieldDefinition</summary>
+<summary>ExportFieldDefinition</summary>
 
 | Property | Type | Description |
 | --- | --- | --- |
@@ -96,6 +96,7 @@ The lotion.config.js file should be defined with the following properties.
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | uuid | string | `''` | Use this type along with the field named `id` in order to use Notion's internal `id` for the row. |
+| index | SchemaIndex | `{...}` | Notion's auto-incrementing custom IDs |
 | title | string | `''` | Notion text or title fields. The result is always a plaintext `string`. Ideally this corresponds to Notion's internal title column. It is useful for identifying rows in Lotion's output logs, which would otherwise default to the Notion `id`. This should be set on 1 or fewer fields. |
 | text | string | `''` | Notion text elements when you only want a `string` output of the plaintext. |
 | richText | SchemaRichTextItem[] | `[]` | Notion text elements when you want to preserve the rich text data |
@@ -112,6 +113,15 @@ The lotion.config.js file should be defined with the following properties.
 </details>
 
 <details>
+<summary>SchemaIndex</summary>
+
+| Property | Type |
+| --- | --- |
+| number | number |
+| prefix | string/null |
+| value | string |
+</details>
+
 <summary>SchemaRichTextItem</summary>
 
 | Property | Type |
@@ -120,6 +130,7 @@ The lotion.config.js file should be defined with the following properties.
 | href | string/null |
 | annotations | SchemaRichTextAnnotations |
 </details>
+
 <details>
 <summary>SchemaRichTextAnnotations</summary>
 
@@ -198,7 +209,11 @@ module.exports = {
 			{
 				field: 'id',
 				type: 'uuid',
-			}
+			},
+			{
+				field: 'Custom ID',
+				type: 'index'
+			},
 			{
 				field: 'Name',
 				type: 'text',

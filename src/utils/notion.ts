@@ -120,9 +120,12 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
                ],
             }
          }
+      case 'relation':
+      case 'relations':
       case 'uuid':
-         return `${data}`
+      case 'index':
       default:
-         return data
+         // these types are not yet supported
+         return undefined
    }
 }

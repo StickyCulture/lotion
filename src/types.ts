@@ -14,6 +14,7 @@ export enum LotionLogLevel {
 
 export type LotionFieldType =
    | 'uuid'
+   | 'index'
    | 'title'
    | 'text'
    | 'richText'
@@ -82,6 +83,12 @@ export interface SchemaFile {
    extension: string
    width: number
    height: number
+}
+
+export interface SchemaIndex {
+   number: number
+   prefix: string
+   value: string
 }
 
 export interface FilteredRow {
