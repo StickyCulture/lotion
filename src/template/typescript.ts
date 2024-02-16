@@ -1,10 +1,10 @@
 import fs from 'fs'
 
-import { LotionConfig, LotionInput } from 'src/types'
+import { LotionConfig, LotionField } from 'src/types'
 
 const resolveTypeDefinition = (config: LotionConfig) => {
    const getType = (field: string) => {
-      const { type, transform } = config.input.find(input => input.field === field) || ({} as LotionInput)
+      const { type, transform } = config.import.fields.find(input => input.field === field) || ({} as LotionField)
 
       if (transform) {
          // TODO: figure out how to define transformed data
@@ -54,7 +54,7 @@ const resolveTypeDefinition = (config: LotionConfig) => {
       return defined
    }
 
-   return defineObject(config.schema)
+   return defineObject(config.import.schema)
 }
 
 export const useTypescriptTemplate = (data: any, filePath: string, config: LotionConfig) => {

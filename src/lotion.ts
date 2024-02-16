@@ -1,7 +1,7 @@
 import path from 'path'
 
 import logger from './utils/logger'
-import { getAllNotionData } from './utils/notion'
+import { createPage, formatExportData, getAllNotionData, getPage, updatePageProperties } from './utils/notion'
 import { saveFileLocally } from './utils/file'
 
 import { useJsonTemplate } from './template/json'
@@ -10,12 +10,13 @@ import { useTypescriptTemplate } from './template/typescript'
 
 import {
    LotionFieldType,
-   LotionInput,
+   LotionField,
    LotionConfig,
    SchemaFile,
    FilteredRow,
    LotionOutputPaths,
    LotionParams,
+   LotionFieldExport,
 } from './types'
 import { sanitizeText } from './utils/text'
 
@@ -51,10 +52,10 @@ class Lotion {
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.database, process.env.NOTION_TOKEN)
+      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN)
 
       // get the field that is the page title
-      const pageTitleField = (this.config.input.find(input => input.type === 'title') || { field: 'id' }).field
+      const pageTitleField = (this.config.import.fields.find(input => input.type === 'title') || { field: 'id' }).field
       logger.verbose(`Using "${pageTitleField}" as page title field`)
 
       let formattedData = []
@@ -94,7 +95,7 @@ class Lotion {
          const transformedRow: FilteredRow = await this.transformRow(filteredRow)
 
          // reshape the transformed input to match the schema
-         const reshapedRow: any = this.reshapeObject(transformedRow, this.config.schema)
+         const reshapedRow: any = this.reshapeObject(transformedRow, this.config.import.schema)
 
          // add the reshaped input to the formatted data
          formattedData.push(reshapedRow)
@@ -103,24 +104,28 @@ class Lotion {
 
       const totalProcessed = formattedData.length
       // post process the data
-      if (this.config.postProcess) {
+      if (this.config.import.postProcess) {
          logger.info('Running post-processing action on data...')
-         formattedData = await this.config.postProcess(formattedData)
+         formattedData = await this.config.import.postProcess(formattedData)
       }
 
       // write the formatted data to the output files
       await this.createOutputFiles(formattedData)
 
       logger.break()
-      logger.success(`Processed ${totalProcessed} items.`)
+      logger.success(`Imported ${totalProcessed} items.`)
       if (numInvalid > 0) {
          logger.warn(`${numInvalid} items were invalid and skipped. See above for details.`)
+      }
+
+      if (this.config.export) {
+         await this.exportData(formattedData)
       }
    }
 
    private filterRow = (item: any): FilteredRow => {
       const result: FilteredRow = {}
-      this.config.input.forEach((input: LotionInput) => {
+      this.config.import.fields.forEach((input: LotionField) => {
          logger.verbose(`Getting raw input for ${input.field}`)
 
          if (input.field === 'id' && input.type === 'uuid') {
@@ -207,7 +212,7 @@ class Lotion {
 
    private validateRow = async (row: FilteredRow): Promise<boolean> => {
       let isValid = true
-      for (const { validate, field } of this.config.input) {
+      for (const { validate, field } of this.config.import.fields) {
          if (!validate) continue
 
          const value = row[field]
@@ -223,7 +228,7 @@ class Lotion {
 
    private transformRow = async (row: FilteredRow): Promise<FilteredRow> => {
       const transformed: FilteredRow = {}
-      for await (const definition of this.config.input) {
+      for await (const definition of this.config.import.fields) {
          // save local files before transforming
          switch (definition.type) {
             case 'file':
@@ -309,6 +314,45 @@ class Lotion {
                logger.error(`Unsupported file extension ${fileExtension}. Did not write create file.`)
                return
          }
+      }
+   }
+
+   private exportData = async (formattedData: any) => {
+      const notionData = []
+      for (const row of formattedData) {
+         const remappedRow: any = { properties: {} }
+         this.config.export.fields.forEach(({ field, input, type }: LotionFieldExport) => {
+            const reformattedData = formatExportData(row[input], type)
+            if (type === 'uuid') {
+               remappedRow.id = reformattedData
+               return
+            }
+            remappedRow.properties[field] = reformattedData
+         })
+         notionData.push(remappedRow)
+      }
+      logger.verbose('Remapped data for export:')
+      logger.verbose(notionData)
+
+      let updateIndex = 0
+      for await (const row of notionData) {
+         updateIndex++
+         this.progress = logger.getProgress(updateIndex, notionData.length)
+         this.currentTitle = row.id
+         logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
+
+         if (!row.id) {
+            await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+            continue
+         } else {
+            const existingPage = await getPage(process.env.NOTION_TOKEN, row.id)
+            if (!existingPage) {
+               await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+               continue
+            }
+         }
+
+         await updatePageProperties(process.env.NOTION_TOKEN, row.id, row.properties)
       }
    }
 }

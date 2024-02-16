@@ -38,19 +38,37 @@ The lotion.config.js file should be defined with the following properties.
 | Property | Type | Description |
 | --- | --- | --- |
 | envFile | string? | Path[^1] to a file that contains environment variables. Only needed if the database requires authentication, in which case, it should include a variable named `NOTION_TOKEN.` |
-| database | string | The ID of the Notion database to sync. |
 | outputFiles | string[] | An array of file paths[^1] to generate. Can be of type `json`, `js` or `ts`. |
 | contentDir | string? | The directory[^1] to store downloaded files. This is only required if your input definitions contain a field of type `image`, `images`, `file`, or `files`. |
+| import | ImportDefinition | An object that describes how to import the data. See below for details. |
+| export | ExportDefinition | An object that describes how to export the data. See below for details. |
 | logLevel | string? | The level of logging to output. Can be one of `none`, `normal`, `detailed`, or `debug`. Defaults to `normal`. |
-| input | InputDefinition[] | An array of input definitions. See below for details. |
-| schema | SchemaDefinition | An object that describes the final shape of the local data. See below for details. |
-| postProcess | (schemaData: any) => Promise\<any\>? | An optional asynchronous function that can be used to transform the final data just before it is written to the output files. The `schemaData` argument takes the shape of the `schema` definition and includes any changes specified by `input`-level `validate` or `transform` functions. |
 
 [^1]: All path values are considered relative to the lotion.config.js location.
 </details>
 
 <details>
-<summary>InputDefinition</summary>
+<summary>ImportDefinition</summary>
+
+| Property | Type | Description |
+| --- | --- | --- |
+| database | string | The ID of the Notion database to sync. |
+| fields | ImportFieldDefinition[] | An array of field definitions. See below for details. |
+| schema | SchemaDefinition | An object that describes the final shape of the local data. See below for details. |
+| postProcess | (schemaData: any) => Promise\<any\>? | An optional asynchronous function that can be used to transform the final data just before it is written to the output files. The `schemaData` argument takes the shape of the `schema` definition and includes any changes specified by `field`-level `validate` or `transform` functions. |
+</details>
+
+<details>
+<summary>ExportDefinition</summary>
+
+| Property | Type | Description |
+| --- | --- | --- |
+| database | string | The ID of the Notion database to sync. |
+| fields | ExportFieldDefinition[] | An array of field definitions. See below for details. |
+</details>
+
+<details>
+<summary>ImportFieldDefinition</summary>
 
 | Property | Type | Description |
 | --- | --- | --- |
@@ -60,6 +78,18 @@ The lotion.config.js file should be defined with the following properties.
 | transform | (value: any, originalRowData: any) => Promise\<any\>? | An optional asynchronous function that can be used apply a transformation to final shape of the particular field item. See below for more. |
 | validate | (value: any, originalRowData: any) => Promise\<boolean\>? | An optional asynchronous function that can be used to validate the value of a field. If retunrning `false`, the item will be withheld from the final output. See below for more. |
 </details>
+
+<details>
+<summary>ImportFieldDefinition</summary>
+
+| Property | Type | Description |
+| --- | --- | --- |
+| field | string | The name of the data column in Notion. It should match exactly. |
+| type | TransformType | The expected type of data. Important for informing how the data is transformed. Can be one of `uuid`, `title`, `text`, `richText`, `number`, `boolean`, `files`, `file`, `images`, `image`, `options`, `option`, `relations`, `relation`. |
+| default | any? | A default value to use if the field is empty. This is optional and will be set based on the `type` if not defined |
+| input | string | The name of the field in the `import.schema` definition that will be applied to this entry. |
+</details>
+
 <details>
 <summary>TransformType</summary>
 
@@ -117,7 +147,7 @@ The lotion.config.js file should be defined with the following properties.
 
 ### SchemaDefinition type
 
-The schema definition can be an object of any shape, but the finally-nested value of any property should be a string that matches the value of a `field` from the `input` array.
+The schema definition can be an object of any shape, but the finally-nested value of any property should be a string that matches the value of a `field` from the `input.fields` array.
 
 If you are adding fields into the schema that do not have corresponding columns from the Notion database, you should still create the `input` definition for it and provide a `default` value. The sync will ignore any fields that are not present in the Notion database and simply provide the `default` value.
 
@@ -156,79 +186,81 @@ NOTION_TOKEN=secret_1234567890abcdef1234567890abcdef
 ```js
 module.exports = {
 	envFile: './.env',
-	database: '1234567890abcdef1234567890abcdef',
 	contentDir: './public/content/images',
 	outputFiles: [
 		'./src/config/data.js',
 		'./src/config/data.ts',
 		'./backup/database.json',
 	],
-	input: [
-		{
-			field: 'id',
-			type: 'uuid',
-		}
-		{
-			field: 'Name',
-			type: 'text',
-			isPageTitle: true,
-			default: 'Untitled',
-		},
-		{
-			field: 'Description',
-			type: 'richText',
-			default: [],
-		},
-		{
-			field: 'Image',
-			type: 'image',
-		},
-		{
-			field: 'Tags',
-			type: 'options',
-			transform: (value, originalRowData) => {
-				return value.map((tag) => {
-					return {
-						name: tag.toLowerCase(),
-						color: originalRowData['Value'] > 0 ? 'green' : 'red',
-					}
-				})
-			},
-		},
-		{
-			field: 'Value',
-			type: 'number',
-			default: 0,
-		},
-		{
-			field: 'Files',
-			type: 'files',
-			default: [],
-		},
-		{
-			field: 'Is Published',
-			type: 'boolean',
-			validate: (value) => {
-				return value
+	input: {
+		database: '1234567890abcdef1234567890abcdef',
+		fields: [
+			{
+				field: 'id',
+				type: 'uuid',
 			}
-		},
-		{
-			field: '_project',
-			type: 'text',
-			default: 'Custom Project',
-		},
-	],
-	schema: {
-		id: 'id',
-		title: 'Name',
-		description: 'Description',
-		image: 'Image',
-		attachments: 'Files',
-		metadata: {
-			tags: 'Tags',
-			value: 'Value',
-			project: '_project',
+			{
+				field: 'Name',
+				type: 'text',
+				isPageTitle: true,
+				default: 'Untitled',
+			},
+			{
+				field: 'Description',
+				type: 'richText',
+				default: [],
+			},
+			{
+				field: 'Image',
+				type: 'image',
+			},
+			{
+				field: 'Tags',
+				type: 'options',
+				transform: (value, originalRowData) => {
+					return value.map((tag) => {
+						return {
+							name: tag.toLowerCase(),
+							color: originalRowData['Value'] > 0 ? 'green' : 'red',
+						}
+					})
+				},
+			},
+			{
+				field: 'Value',
+				type: 'number',
+				default: 0,
+			},
+			{
+				field: 'Files',
+				type: 'files',
+				default: [],
+			},
+			{
+				field: 'Is Published',
+				type: 'boolean',
+				validate: (value) => {
+					return value
+				}
+			},
+			{
+				field: '_project',
+				type: 'text',
+				default: 'Custom Project',
+			},
+		],
+		schema: {
+			id: 'id',
+			title: 'Name',
+			description: 'Description',
+			image: 'Image',
+			attachments: 'Files',
+			metadata: {
+				tags: 'Tags',
+				value: 'Value',
+				project: '_project',
+			}
 		}
-	}
+	},
 }
 </details>
