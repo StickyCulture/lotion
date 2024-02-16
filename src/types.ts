@@ -1,3 +1,5 @@
+import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints'
+
 export enum LoggerLogLevel {
    NONE,
    NORMAL,
@@ -43,6 +45,10 @@ export interface LotionFieldExport extends Pick<LotionField, 'field' | 'default'
 
 export interface LotionImport {
    database: string
+   filters?: QueryDatabaseParameters['filter']
+   sorts?: QueryDatabaseParameters['sorts']
+   limit?: number
+   offset?: number
    fields: LotionField[]
    schema: { [key: string]: string | object }
    postProcess?: (data: any) => Promise<any>
@@ -97,4 +103,11 @@ export interface FilteredRow {
 
 export interface LotionCliOptions {
    config?: string
+}
+
+export type NotionDatabaseQueryParams = {
+   sorts?: QueryDatabaseParameters['sorts']
+   filter?: QueryDatabaseParameters['filter']
+   limit?: number
+   offset?: number
 }

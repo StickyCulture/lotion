@@ -53,6 +53,10 @@ The lotion.config.js file should be defined with the following properties.
 | Property | Type | Description |
 | --- | --- | --- |
 | database | string | The ID of the Notion database to sync. |
+| sorts | QueryDatabaseParameters['sorts'] | An array of sort objects for the Notion database query. See the [Notion API documentation](https://developers.notion.com/reference/post-database-query) for more details. |
+| filters | QueryDatabaseParameters['filter'] | A filter object for the Notion database query. See the [Notion API documentation](https://developers.notion.com/reference/post-database-query) for more details. |
+| limit | number | The maximum number of records to process. |
+| offset | number | The starting index of the first record to process. This is applied after filters and sorts. |
 | fields | ImportFieldDefinition[] | An array of field definitions. See below for details. |
 | schema | SchemaDefinition | An object that describes the final shape of the local data. See below for details. |
 | postProcess | (schemaData: any) => Promise\<any\>? | An optional asynchronous function that can be used to transform the final data just before it is written to the output files. The `schemaData` argument takes the shape of the `schema` definition and includes any changes specified by `field`-level `validate` or `transform` functions. |

@@ -54,7 +54,12 @@ class Lotion {
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN)
+      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN, {
+         filter: this.config.import.filters,
+         sorts: this.config.import.sorts,
+         limit: this.config.import.limit,
+         offset: this.config.import.offset,
+      })
 
       // get the field that is the page title
       const pageTitleField = (this.config.import.fields.find(input => input.type === 'title') || { field: 'id' }).field

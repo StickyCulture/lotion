@@ -1,21 +1,37 @@
 import { Client as NotionClient } from '@notionhq/client'
-import { LotionFieldType } from 'src/types'
 
-export const getAllNotionData = async (database_id: string, token: string) => {
+import { LotionFieldType, NotionDatabaseQueryParams } from 'src/types'
+
+export const getAllNotionData = async (database_id: string, token: string, params: NotionDatabaseQueryParams) => {
    const NOTION = new NotionClient({ auth: token })
+
+   const { sorts, filter } = params
+   let limit = params.limit || Infinity
 
    let response = await NOTION.databases.query({
       database_id,
+      sorts,
+      filter,
+      page_size: limit < 100 ? limit : undefined,
    })
    const results = response.results
 
    // cycle through all pages of results
-   while (response.has_more) {
+   while (response.has_more && results.length < limit) {
       response = await NOTION.databases.query({
          database_id,
+         sorts,
+         filter,
          start_cursor: response.next_cursor,
       })
       results.push(...response.results)
+   }
+
+   limit = params.limit || results.length
+   const offset = params.offset || 0
+
+   if (limit < results.length || offset > 0) {
+      return results.slice(offset, offset + limit)
    }
 
    return results
