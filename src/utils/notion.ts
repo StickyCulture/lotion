@@ -137,7 +137,21 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
             }
          }
       case 'relation':
+         return {
+            relation: [
+               {
+                  id: `${data}`,
+               },
+            ],
+         }
       case 'relations':
+         return {
+            relation: data.map((relation: string) => {
+               return {
+                  id: relation,
+               }
+            }),
+         }
       case 'uuid':
       case 'index':
       default:
