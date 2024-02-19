@@ -2,7 +2,7 @@ import { Command } from 'commander'
 
 import Lotion from './lotion'
 import logger from './utils/logger'
-import { generateParamsFromConfig } from './utils/cli'
+import { generateParamsFromConfigFile } from './utils/file'
 
 import { LotionCliOptions, LotionParams } from './types'
 
@@ -19,7 +19,7 @@ const handleCli = async () => {
    // handle configuration
    let params: LotionParams
    try {
-      params = await generateParamsFromConfig(options.config)
+      params = await generateParamsFromConfigFile(options.config)
    } catch (error) {
       logger.error(error.message)
       return
