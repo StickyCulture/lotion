@@ -17,11 +17,13 @@ import {
    LotionOutputPaths,
    LotionParams,
    LotionFieldExport,
+   SchemaIndex,
 } from './types'
 import { sanitizeText } from './utils/text'
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
+   index: { number: 0, prefix: '', value: '' },
    title: '',
    text: '',
    richText: [],
@@ -52,7 +54,12 @@ class Lotion {
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN)
+      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN, {
+         filter: this.config.import.filters,
+         sorts: this.config.import.sorts,
+         limit: this.config.import.limit,
+         offset: this.config.import.offset,
+      })
 
       // get the field that is the page title
       const pageTitleField = (this.config.import.fields.find(input => input.type === 'title') || { field: 'id' }).field
@@ -147,6 +154,15 @@ class Lotion {
 
          logger.verbose(rawValue)
          switch (input.type) {
+            case 'index': {
+               const { prefix, number } = rawValue
+               result[input.field] = {
+                  number,
+                  prefix,
+                  value: `${prefix}${prefix ? '-' : ''}${number}`,
+               } as SchemaIndex
+               return
+            }
             case 'title':
             case 'text':
                // convert the original array to a plaintext string
@@ -322,9 +338,14 @@ class Lotion {
       for (const row of formattedData) {
          const remappedRow: any = { properties: {} }
          this.config.export.fields.forEach(({ field, input, type }: LotionFieldExport) => {
-            const reformattedData = formatExportData(row[input], type)
+            const value = row[input]
             if (type === 'uuid') {
-               remappedRow.id = reformattedData
+               remappedRow.id = value
+               return
+            }
+            const reformattedData = formatExportData(value, type)
+            if (reformattedData === undefined) {
+               logger.verbose(`Field ${field} of type ${type} is not supported for export. Skipping.`)
                return
             }
             remappedRow.properties[field] = reformattedData
