@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 
 import logger from './utils/logger'
@@ -15,9 +16,7 @@ import {
    FilteredRow,
    LotionFieldExport,
    SchemaIndex,
-   LotionConfig,
-   LotionOutputPaths,
-   LotionEnvironment,
+   LotionConstructor,
 } from './types'
 import { sanitizeText } from './utils/text'
 
@@ -40,40 +39,50 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
 }
 
 class Lotion {
-   private config: LotionConfig
-   private outputPath: LotionOutputPaths
-   private environment: LotionEnvironment
+   private config: LotionConstructor
 
    private progress: string = ''
    private currentTitle: string = ''
 
-   constructor(config: LotionConfig, environment: Partial<LotionEnvironment>, outputPath: LotionOutputPaths) {
-      this.config = config
-      this.outputPath = outputPath
-
-      this.environment = {
-         notionImportToken: environment.notionImportToken || '',
-         notionExportToken: environment.notionExportToken || '',
+   constructor(params: LotionConstructor) {
+      // make sure outputFiles exist
+      if (!params.outputFiles || !params.outputFiles.length) {
+         throw new Error('No output files specified. Aborting.')
       }
 
-      if (!this.environment.notionImportToken) {
+      // make sure outputFiles are of type json, js, or ts
+      if (
+         !params.outputFiles.every(
+            (file: string) => file.endsWith('.json') || file.endsWith('.js') || file.endsWith('.ts')
+         )
+      ) {
+         throw new Error('Output files must be of type json, js, or ts. Aborting.')
+      }
+
+      // set absolute path for all output files and content
+      params.basePath = params.basePath || process.cwd()
+      params.contentDir = path.join(params.basePath, params.contentDir || 'content')
+      params.outputFiles = params.outputFiles.map(file => path.join(params.basePath, file))
+
+      if (!params.import.token) {
          throw new Error('Notion import token is required. Aborting.')
       }
 
-      if (this.config.export) {
-         if (this.config.export.database === this.config.import.database) {
-            this.environment.notionExportToken =
-               this.environment.notionExportToken || this.environment.notionImportToken
-         } else if (!this.environment.notionExportToken) {
+      if (params.export) {
+         if (params.export.database === params.import.database) {
+            params.export.token = params.export.token || params.import.token
+         } else if (!params.export.token) {
             throw new Error('Notion export token is required. Aborting.')
          }
       }
+
+      this.config = params
    }
 
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.import.database, this.environment.notionImportToken, {
+      const notionData = await getAllNotionData(this.config.import.database, this.config.import.token, {
          filter: this.config.import.filters,
          sorts: this.config.import.sorts,
          limit: this.config.import.limit,
@@ -270,10 +279,9 @@ class Lotion {
             case 'image':
                let fileData: SchemaFile = await saveFileLocally(
                   row[definition.field],
-                  this.outputPath.content.absolute,
+                  this.config.contentDir,
                   [row.id, sanitizeText(definition.field), 0].join('_')
                )
-               fileData.path = this.outputPath.content.relative || fileData.path
                row[definition.field] = fileData
                break
             case 'files':
@@ -282,10 +290,9 @@ class Lotion {
                   row[definition.field].map(async (remoteUrl: string, index: number) => {
                      let fileData: SchemaFile = await saveFileLocally(
                         remoteUrl,
-                        this.outputPath.content.absolute,
+                        this.config.contentDir,
                         [row.id, sanitizeText(definition.field), index].join('_')
                      )
-                     fileData.path = this.outputPath.content.relative || fileData.path
                      return fileData
                   })
                )
@@ -329,8 +336,12 @@ class Lotion {
    }
 
    private createOutputFiles = async (formattedData: any) => {
-      for await (const file of this.config.outputFiles) {
-         const filePath = path.join(this.outputPath.data.absolute, file)
+      for await (const filePath of this.config.outputFiles) {
+         const fileDir = path.dirname(filePath)
+         if (!fs.existsSync(fileDir)) {
+            logger.info(`Creating directory ${fileDir}`)
+            fs.mkdirSync(fileDir, { recursive: true })
+         }
          logger.info(`Writing data to ${filePath}`)
          // get the file extension
          const fileExtension = path.extname(filePath)
@@ -382,17 +393,17 @@ class Lotion {
          logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
 
          if (!row.id) {
-            await createPage(this.environment.notionExportToken, this.config.export.database, row.properties)
+            await createPage(this.config.export.token, this.config.export.database, row.properties)
             continue
          } else {
-            const existingPage = await getPage(this.environment.notionExportToken, row.id)
+            const existingPage = await getPage(this.config.export.token, row.id)
             if (!existingPage) {
-               await createPage(this.environment.notionExportToken, this.config.export.database, row.properties)
+               await createPage(this.config.export.token, this.config.export.database, row.properties)
                continue
             }
          }
 
-         await updatePageProperties(this.environment.notionExportToken, row.id, row.properties)
+         await updatePageProperties(this.config.export.token, row.id, row.properties)
       }
    }
 }

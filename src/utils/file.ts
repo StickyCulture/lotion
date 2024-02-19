@@ -47,15 +47,19 @@ export const saveFileLocally = async (
       return result
    }
 
-   const { name, extension } = splitExtension(remoteUrl)
-   result.name = customFileName || name
-   result.extension = extension
-   const absolutePath = path.join(destinationPath, `${result.name}.${extension}`)
-
    // get the file from the url
    const fileResponse = await fetch(remoteUrl)
    const fileBuffer = await fileResponse.arrayBuffer()
 
+   const { name, extension } = splitExtension(remoteUrl)
+   result.name = customFileName || name
+   result.extension = extension
+
+   // save the file to the destination path
+   if (!fs.existsSync(destinationPath)) {
+      fs.mkdirSync(destinationPath, { recursive: true })
+   }
+   const absolutePath = path.join(destinationPath, `${result.name}.${extension}`)
    fs.writeFileSync(absolutePath, Buffer.from(fileBuffer))
 
    // if an image, get width and height

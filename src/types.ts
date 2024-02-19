@@ -1,5 +1,4 @@
 import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints'
-import Lotion from './lotion'
 
 export enum LoggerLogLevel {
    NONE,
@@ -64,30 +63,20 @@ export interface LotionConfig {
    envFile?: string
    contentDir?: string
    outputFiles: string[]
-   logLevel: LotionLogLevel
+   logLevel?: LotionLogLevel
    import: LotionImport
    export?: LotionExport
 }
 
-export interface LotionPath {
-   absolute: string
-   relative: string
-}
-
-export interface LotionOutputPaths {
-   data: LotionPath
-   content: LotionPath
+export type LotionConstructor = Pick<LotionConfig, 'contentDir' | 'outputFiles' | 'logLevel'> & {
+   import: LotionConfig['import'] & { token: string }
+   export?: LotionConfig['export'] & { token: string }
+   basePath?: string
 }
 
 export interface LotionEnvironment {
    notionImportToken: string
    notionExportToken: string
-}
-
-export interface LotionConfig {
-   config: LotionConfig
-   outputPath: LotionOutputPaths
-   env: LotionEnvironment
 }
 
 export interface SchemaFile {
