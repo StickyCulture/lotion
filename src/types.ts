@@ -79,7 +79,10 @@ export interface LotionOutputPaths {
 }
 
 export interface LotionParams {
-   config: LotionConfig
+   config: LotionConfig & {
+      import: LotionConfig['import'] & { token: string }
+      export?: LotionConfig['export'] & { token: string }
+   }
    outputPath: LotionOutputPaths
 }
 
@@ -99,10 +102,6 @@ export interface SchemaIndex {
 
 export interface FilteredRow {
    [field: string]: any
-}
-
-export interface LotionCliOptions {
-   config?: string
 }
 
 export type NotionDatabaseQueryParams = {

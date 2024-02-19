@@ -37,7 +37,7 @@ The lotion.config.js file should be defined with the following properties.
 
 | Property | Type | Description |
 | --- | --- | --- |
-| envFile | string? | Path[^1] to a file that contains environment variables. Only needed if the database requires authentication, in which case, it should include a variable named `NOTION_TOKEN.` |
+| envFile | string? | Path[^1] to a file that contains environment variables. Only needed if the database requires authentication, in which case, it should include a variable named `NOTION_IMPORT_TOKEN` and `NOTION_EXPORT_TOKEN` if you include an ExportDefinition to a database that is different than the import database |
 | outputFiles | string[] | An array of file paths[^1] to generate. Can be of type `json`, `js` or `ts`. |
 | contentDir | string? | The directory[^1] to store downloaded files. This is only required if your input definitions contain a field of type `image`, `images`, `file`, or `files`. |
 | import | ImportDefinition | An object that describes how to import the data. See below for details. |

@@ -11,10 +11,8 @@ import { useTypescriptTemplate } from './template/typescript'
 import {
    LotionFieldType,
    LotionField,
-   LotionConfig,
    SchemaFile,
    FilteredRow,
-   LotionOutputPaths,
    LotionParams,
    LotionFieldExport,
    SchemaIndex,
@@ -40,8 +38,8 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
 }
 
 class Lotion {
-   private config: LotionConfig
-   private outputPath: LotionOutputPaths
+   private config: LotionParams['config']
+   private outputPath: LotionParams['outputPath']
 
    private progress: string = ''
    private currentTitle: string = ''
@@ -54,7 +52,7 @@ class Lotion {
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN, {
+      const notionData = await getAllNotionData(this.config.import.database, this.config.import.token, {
          filter: this.config.import.filters,
          sorts: this.config.import.sorts,
          limit: this.config.import.limit,
@@ -363,17 +361,17 @@ class Lotion {
          logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
 
          if (!row.id) {
-            await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+            await createPage(this.config.export.token, this.config.export.database, row.properties)
             continue
          } else {
-            const existingPage = await getPage(process.env.NOTION_TOKEN, row.id)
+            const existingPage = await getPage(this.config.export.token, row.id)
             if (!existingPage) {
-               await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+               await createPage(this.config.export.token, this.config.export.database, row.properties)
                continue
             }
          }
 
-         await updatePageProperties(process.env.NOTION_TOKEN, row.id, row.properties)
+         await updatePageProperties(this.config.export.token, row.id, row.properties)
       }
    }
 }
