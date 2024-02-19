@@ -1,4 +1,5 @@
 import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints'
+import Lotion from './lotion'
 
 export enum LoggerLogLevel {
    NONE,
@@ -78,12 +79,15 @@ export interface LotionOutputPaths {
    content: LotionPath
 }
 
-export interface LotionParams {
-   config: LotionConfig & {
-      import: LotionConfig['import'] & { token: string }
-      export?: LotionConfig['export'] & { token: string }
-   }
+export interface LotionEnvironment {
+   notionImportToken: string
+   notionExportToken: string
+}
+
+export interface LotionConfig {
+   config: LotionConfig
    outputPath: LotionOutputPaths
+   env: LotionEnvironment
 }
 
 export interface SchemaFile {

@@ -13,9 +13,11 @@ import {
    LotionField,
    SchemaFile,
    FilteredRow,
-   LotionParams,
    LotionFieldExport,
    SchemaIndex,
+   LotionConfig,
+   LotionOutputPaths,
+   LotionEnvironment,
 } from './types'
 import { sanitizeText } from './utils/text'
 
@@ -38,21 +40,40 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
 }
 
 class Lotion {
-   private config: LotionParams['config']
-   private outputPath: LotionParams['outputPath']
+   private config: LotionConfig
+   private outputPath: LotionOutputPaths
+   private environment: LotionEnvironment
 
    private progress: string = ''
    private currentTitle: string = ''
 
-   constructor({ config, outputPath }: LotionParams) {
+   constructor(config: LotionConfig, environment: Partial<LotionEnvironment>, outputPath: LotionOutputPaths) {
       this.config = config
       this.outputPath = outputPath
+
+      this.environment = {
+         notionImportToken: environment.notionImportToken || '',
+         notionExportToken: environment.notionExportToken || '',
+      }
+
+      if (!this.environment.notionImportToken) {
+         throw new Error('Notion import token is required. Aborting.')
+      }
+
+      if (this.config.export) {
+         if (this.config.export.database === this.config.import.database) {
+            this.environment.notionExportToken =
+               this.environment.notionExportToken || this.environment.notionImportToken
+         } else if (!this.environment.notionExportToken) {
+            throw new Error('Notion export token is required. Aborting.')
+         }
+      }
    }
 
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.import.database, this.config.import.token, {
+      const notionData = await getAllNotionData(this.config.import.database, this.environment.notionImportToken, {
          filter: this.config.import.filters,
          sorts: this.config.import.sorts,
          limit: this.config.import.limit,
@@ -361,17 +382,17 @@ class Lotion {
          logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
 
          if (!row.id) {
-            await createPage(this.config.export.token, this.config.export.database, row.properties)
+            await createPage(this.environment.notionExportToken, this.config.export.database, row.properties)
             continue
          } else {
-            const existingPage = await getPage(this.config.export.token, row.id)
+            const existingPage = await getPage(this.environment.notionExportToken, row.id)
             if (!existingPage) {
-               await createPage(this.config.export.token, this.config.export.database, row.properties)
+               await createPage(this.environment.notionExportToken, this.config.export.database, row.properties)
                continue
             }
          }
 
-         await updatePageProperties(this.config.export.token, row.id, row.properties)
+         await updatePageProperties(this.environment.notionExportToken, row.id, row.properties)
       }
    }
 }

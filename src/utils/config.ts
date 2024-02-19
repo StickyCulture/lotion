@@ -6,7 +6,7 @@ import { configDotenv } from 'dotenv'
 
 import logger from './logger'
 
-import { LotionParams, LotionOutputPaths, LoggerLogLevel, LotionField } from '../types'
+import { LotionOutputPaths, LoggerLogLevel, LotionField, LotionConfig } from '../types'
 
 export const getCosmicConfig = async (configFilePath?: string): Promise<CosmiconfigResult> => {
    const explorer = cosmiconfig('lotion')
@@ -27,7 +27,9 @@ export const getCosmicConfig = async (configFilePath?: string): Promise<Cosmicon
    return cosmic
 }
 
-export const generateParamsFromConfigFile = async (configFilePath?: string): Promise<LotionParams> => {
+export const generateParamsFromConfigFile = async (
+   configFilePath?: string
+): Promise<{ config: LotionConfig; outputPath: LotionOutputPaths }> => {
    const cosmic: CosmiconfigResult = await getCosmicConfig(configFilePath)
 
    const config = { ...cosmic.config }
@@ -106,28 +108,4 @@ export const loadEnvironmentVariables = (path: string): void => {
    } catch (error) {
       throw new Error(`Error loading environment variables: ${error.message}`)
    }
-}
-
-export const configureDatabaseTokens = (params: LotionParams): LotionParams => {
-   loadEnvironmentVariables(params.config.envFile)
-
-   if (!process.env.NOTION_IMPORT_TOKEN) {
-      throw new Error('You must provide a NOTION_IMPORT_TOKEN environment variable')
-   }
-
-   params.config.import.token = process.env.NOTION_IMPORT_TOKEN
-
-   if (params.config.export) {
-      if (process.env.NOTION_EXPORT_TOKEN) {
-         params.config.export.token = process.env.NOTION_EXPORT_TOKEN
-      } else if (params.config.export.database === params.config.import.database) {
-         params.config.export.token = params.config.import.token
-      } else {
-         throw new Error(
-            'You must provide a NOTION_EXPORT_TOKEN environment variable for the export database if it is different than the import database.'
-         )
-      }
-   }
-
-   return params
 }

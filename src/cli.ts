@@ -2,9 +2,9 @@ import { Command } from 'commander'
 
 import Lotion from './lotion'
 import logger from './utils/logger'
-import { configureDatabaseTokens, generateParamsFromConfigFile } from './utils/config'
+import { generateParamsFromConfigFile, loadEnvironmentVariables } from './utils/config'
 
-import { LotionParams } from './types'
+import { LotionEnvironment } from './types'
 
 const program = new Command()
 
@@ -18,19 +18,33 @@ const handleCli = async () => {
    const options = program.opts()
 
    // handle configuration
-   let params: LotionParams
-   try {
-      params = await generateParamsFromConfigFile(options.config)
-      if (options.env) {
-         params.config.envFile = options.env
-      }
-      params = configureDatabaseTokens(params)
-   } catch (error) {
-      logger.error(error.message)
-      return
+   const { config, outputPath } = await generateParamsFromConfigFile(options.config)
+
+   // load environment variables
+   loadEnvironmentVariables(config.envFile || options.env)
+
+   // set token configuration
+   const environment: LotionEnvironment = { notionImportToken: '', notionExportToken: '' }
+
+   if (!process.env.NOTION_IMPORT_TOKEN) {
+      throw new Error('You must provide a NOTION_IMPORT_TOKEN environment variable')
    }
 
-   const lotion = new Lotion(params)
+   environment.notionImportToken = process.env.NOTION_IMPORT_TOKEN
+
+   if (config.export) {
+      if (process.env.NOTION_EXPORT_TOKEN) {
+         environment.notionExportToken = process.env.NOTION_EXPORT_TOKEN
+      } else if (config.export.database === config.import.database) {
+         environment.notionExportToken = environment.notionImportToken
+      } else {
+         throw new Error(
+            'You must provide a NOTION_EXPORT_TOKEN environment variable for the export database if it is different than the import database.'
+         )
+      }
+   }
+
+   const lotion = new Lotion(config, environment, outputPath)
    await lotion.run()
 }
 
