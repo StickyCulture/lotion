@@ -1,7 +1,17 @@
 import { Client as NotionClient } from '@notionhq/client'
-import { QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
+import { PartialDatabaseObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 
 import { LotionFieldType, NotionDatabaseQueryParams } from 'src/types'
+
+export const getDatabase = async (database_id: string, token: string): Promise<PartialDatabaseObjectResponse> => {
+   const NOTION = new NotionClient({ auth: token })
+
+   const response = await NOTION.databases.retrieve({
+      database_id,
+   })
+
+   return response
+}
 
 export const getAllNotionData = async (database_id: string, token: string, params: NotionDatabaseQueryParams) => {
    const NOTION = new NotionClient({ auth: token })
