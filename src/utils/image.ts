@@ -1,13 +1,12 @@
 import imageSize from 'image-size'
 
-export const measureImage = async (image: string) => {
+export const measureImage = (image: Buffer) => {
    return new Promise((resolve, reject) => {
-      imageSize(image, (err, dimensions) => {
-         if (err) {
-            reject(err)
-         } else {
-            resolve(dimensions)
-         }
-      })
+      const dimensions = imageSize(image)
+      if (dimensions) {
+         resolve(dimensions)
+      } else {
+         reject(new Error('Could not measure image'))
+      }
    })
 }
