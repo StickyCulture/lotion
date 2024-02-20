@@ -2,7 +2,14 @@ import fs from 'fs'
 import path from 'path'
 
 import logger from './utils/logger'
-import { createPage, formatExportData, getAllNotionData, getPage, updatePageProperties } from './utils/notion'
+import {
+   createPage,
+   formatExportData,
+   getAllNotionData,
+   getDatabase,
+   getPage,
+   updatePageProperties,
+} from './utils/notion'
 import { createSchemaFile } from './utils/file'
 
 import { useJsonTemplate } from './template/json'
@@ -88,7 +95,36 @@ class Lotion {
       this.config = params
    }
 
+   public testFields = async (scope: LotionConstructor['import'] | LotionConstructor['export']) => {
+      const response = await getDatabase(scope.database, scope.token)
+
+      const incorrectFields: string[] = []
+      scope.fields.forEach(expectedProperty => {
+         const name = expectedProperty.field
+         if (name === 'id') {
+            return
+         }
+         const property = response.properties[name]
+         if (!property) {
+            incorrectFields.push(expectedProperty.field)
+         }
+      })
+
+      if (incorrectFields.length) {
+         logger.error(
+            `\nThe following fields are not present in the Notion database:\n  - ${incorrectFields.join('\n  - ')}`
+         )
+         this.cancel()
+      }
+   }
+
    public run = async () => {
+      // test all fields
+      await this.testFields(this.config.import)
+      if (this.config.export) {
+         await this.testFields(this.config.export)
+      }
+
       // get all data from notion
       logger.info('Gathering data from Notion...')
       const notionData = await getAllNotionData(this.config.import.database, this.config.import.token, {
@@ -169,6 +205,11 @@ class Lotion {
       return formattedData
    }
 
+   public cancel = () => {
+      logger.warn('\nOperation cancelled.\n')
+      process.exit(1)
+   }
+
    private filterRow = (item: any): FilteredRow => {
       const result: FilteredRow = {}
       this.config.import.fields.forEach((input: LotionField) => {
@@ -183,6 +224,7 @@ class Lotion {
 
          // if the field is not a property of item.properties object, return the default value
          if (!item.properties[input.field]) {
+            logger.warn(`Field ${input.field} not found in item. Using default value.`)
             result[input.field] = defaultValue
             return
          }
