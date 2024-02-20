@@ -1,5 +1,5 @@
 import Lotion from './lotion'
 
-export { generateParamsFromConfig } from './utils/cli'
+export { generateParamsFromConfigFile, getCosmicConfig } from './utils/config'
 
 export default Lotion

@@ -63,24 +63,20 @@ export interface LotionConfig {
    envFile?: string
    contentDir?: string
    outputFiles: string[]
-   logLevel: LotionLogLevel
+   logLevel?: LotionLogLevel
    import: LotionImport
    export?: LotionExport
 }
 
-export interface LotionPath {
-   absolute: string
-   relative: string
+export type LotionConstructor = Pick<LotionConfig, 'contentDir' | 'outputFiles' | 'logLevel'> & {
+   import: LotionConfig['import'] & { token: string }
+   export?: LotionConfig['export'] & { token: string }
+   basePath?: string
 }
 
-export interface LotionOutputPaths {
-   data: LotionPath
-   content: LotionPath
-}
-
-export interface LotionParams {
-   config: LotionConfig
-   outputPath: LotionOutputPaths
+export interface LotionEnvironment {
+   notionImportToken: string
+   notionExportToken: string
 }
 
 export interface SchemaFile {
@@ -99,10 +95,6 @@ export interface SchemaIndex {
 
 export interface FilteredRow {
    [field: string]: any
-}
-
-export interface LotionCliOptions {
-   config?: string
 }
 
 export type NotionDatabaseQueryParams = {

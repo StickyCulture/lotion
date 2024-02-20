@@ -6,7 +6,7 @@ import logger from './logger'
 import { sanitizeText } from './text'
 import { measureImage } from './image'
 
-import { LoggerLogLevel, SchemaFile } from '../types'
+import { SchemaFile, LoggerLogLevel } from '../types'
 
 const splitExtension = (filename: string) => {
    const split = filename.split('.')
@@ -30,13 +30,14 @@ const splitExtension = (filename: string) => {
    }
 }
 
-export const saveFileLocally = async (
+export const createSchemaFile = async (
    remoteUrl: string,
    destinationPath: string,
-   customFileName: string = ''
+   customFileName: string = '',
+   saveToDisk: boolean = true
 ): Promise<SchemaFile> => {
    let result: SchemaFile = {
-      path: destinationPath,
+      path: remoteUrl,
       name: '',
       extension: '',
       width: 0,
@@ -47,21 +48,28 @@ export const saveFileLocally = async (
       return result
    }
 
+   // get the file from the url
+   const fileResponse = await fetch(remoteUrl)
+   const fileBuffer = Buffer.from(await fileResponse.arrayBuffer())
+
    const { name, extension } = splitExtension(remoteUrl)
    result.name = customFileName || name
    result.extension = extension
-   const absolutePath = path.join(destinationPath, `${result.name}.${extension}`)
 
-   // get the file from the url
-   const fileResponse = await fetch(remoteUrl)
-   const fileBuffer = await fileResponse.arrayBuffer()
-
-   fs.writeFileSync(absolutePath, Buffer.from(fileBuffer))
+   if (saveToDisk) {
+      // save the file to the destination path
+      result.path = destinationPath
+      if (!fs.existsSync(destinationPath)) {
+         fs.mkdirSync(destinationPath, { recursive: true })
+      }
+      const absolutePath = path.join(destinationPath, `${result.name}.${extension}`)
+      fs.writeFileSync(absolutePath, fileBuffer)
+   }
 
    // if an image, get width and height
    if (extension.match(/(jpg|jpeg|png|webp)/)) {
       try {
-         const measured: any = await measureImage(absolutePath)
+         const measured: any = await measureImage(fileBuffer)
          result.width = measured.width
          result.height = measured.height
       } catch (err) {

@@ -37,14 +37,14 @@ The lotion.config.js file should be defined with the following properties.
 
 | Property | Type | Description |
 | --- | --- | --- |
-| envFile | string? | Path[^1] to a file that contains environment variables. Only needed if the database requires authentication, in which case, it should include a variable named `NOTION_TOKEN.` |
+| envFile | string? | Path[^1] to a file that contains environment variables. Only needed if the database requires authentication, in which case, it should include a variable named `NOTION_IMPORT_TOKEN` and `NOTION_EXPORT_TOKEN` if you include an ExportDefinition to a database that is different than the import database |
 | outputFiles | string[] | An array of file paths[^1] to generate. Can be of type `json`, `js` or `ts`. |
 | contentDir | string? | The directory[^1] to store downloaded files. This is only required if your input definitions contain a field of type `image`, `images`, `file`, or `files`. |
 | import | ImportDefinition | An object that describes how to import the data. See below for details. |
-| export | ExportDefinition | An object that describes how to export the data. See below for details. |
+| export | ExportDefinition? | An object that describes how to export the data. See below for details. |
 | logLevel | string? | The level of logging to output. Can be one of `none`, `normal`, `detailed`, or `debug`. Defaults to `normal`. |
 
-[^1]: All path values are considered relative to the lotion.config.js location.
+[^1]: All path values are considered relative to the lotion.config.js location when using the CLI. When using the API, the paths are considered relative to the current working directory.
 </details>
 
 <details>
@@ -152,7 +152,7 @@ The lotion.config.js file should be defined with the following properties.
 
 | Property | Type | Description |
 | --- | --- | --- |
-| path | string | The path to the file relative to the `contentDir` |
+| path | string | The absolute path to the file |
 | name | string | The name of the file (without extension) |
 | extension | string | The file extension |
 | width | number | This will be `0` if not an image type |
@@ -192,7 +192,8 @@ The pre-processing is done to the row data before it is passed to these function
 <summary>.env file</summary>
 
 ```.env
-NOTION_TOKEN=secret_1234567890abcdef1234567890abcdef
+NOTION_IMPORT_TOKEN=secret_1234567890abcdef1234567890abcdef
+NOTION_EXPORT_TOKEN=secret_1234567890abcdef1234567890abcdef
 ```
 </details>
 <details>

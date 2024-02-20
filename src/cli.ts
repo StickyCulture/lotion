@@ -2,9 +2,7 @@ import { Command } from 'commander'
 
 import Lotion from './lotion'
 import logger from './utils/logger'
-import { generateParamsFromConfig } from './utils/cli'
-
-import { LotionCliOptions, LotionParams } from './types'
+import { generateParamsFromConfigFile } from './utils/config'
 
 const program = new Command()
 
@@ -12,21 +10,20 @@ const handleCli = async () => {
    program.name('sticky-utils-lotion')
    program.description('Copy a Notion database to a local place')
    program.option('-c --config <path>', 'path to config file')
+   program.option('-e --env <path>', 'path to .env file')
    program.parse()
 
-   const options: LotionCliOptions = program.opts()
+   const options = program.opts()
 
    // handle configuration
-   let params: LotionParams
-   try {
-      params = await generateParamsFromConfig(options.config)
-   } catch (error) {
-      logger.error(error.message)
-      return
-   }
+   const config = await generateParamsFromConfigFile(options.config, options.env)
 
-   const lotion = new Lotion(params)
+   const lotion = new Lotion(config)
    await lotion.run()
 }
 
-handleCli()
+try {
+   handleCli()
+} catch (error) {
+   logger.error(error.message)
+}

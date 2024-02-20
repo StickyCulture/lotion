@@ -1,8 +1,9 @@
+import fs from 'fs'
 import path from 'path'
 
 import logger from './utils/logger'
 import { createPage, formatExportData, getAllNotionData, getPage, updatePageProperties } from './utils/notion'
-import { saveFileLocally } from './utils/file'
+import { createSchemaFile } from './utils/file'
 
 import { useJsonTemplate } from './template/json'
 import { useJavascriptTemplate } from './template/javascript'
@@ -11,13 +12,11 @@ import { useTypescriptTemplate } from './template/typescript'
 import {
    LotionFieldType,
    LotionField,
-   LotionConfig,
    SchemaFile,
    FilteredRow,
-   LotionOutputPaths,
-   LotionParams,
    LotionFieldExport,
    SchemaIndex,
+   LotionConstructor,
 } from './types'
 import { sanitizeText } from './utils/text'
 
@@ -40,21 +39,59 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
 }
 
 class Lotion {
-   private config: LotionConfig
-   private outputPath: LotionOutputPaths
+   private config: LotionConstructor
 
    private progress: string = ''
    private currentTitle: string = ''
 
-   constructor({ config, outputPath }: LotionParams) {
-      this.config = config
-      this.outputPath = outputPath
+   private get isMemoryOnly(): boolean {
+      return this.config.outputFiles.length === 1 && this.config.outputFiles[0] === 'memory'
+   }
+
+   constructor(params: LotionConstructor) {
+      // make sure outputFiles exist
+      if (!params.outputFiles || !params.outputFiles.length) {
+         throw new Error('No output specified. Aborting.')
+      }
+
+      // make sure outputFiles are of type json, js, or ts
+      if (
+         !params.outputFiles.every(
+            (file: string) => file.endsWith('.json') || file.endsWith('.js') || file.endsWith('.ts') || 'memory'
+         )
+      ) {
+         throw new Error('Output files must be "memory" or have extension ".json", ".js", or ".ts". Aborting.')
+      }
+
+      // set absolute path for all output files and content
+      params.basePath = params.basePath || process.cwd()
+      params.contentDir = path.join(params.basePath, params.contentDir || 'content')
+      params.outputFiles = params.outputFiles.map(file => {
+         if (file === 'memory') {
+            return file
+         }
+         return path.join(params.basePath, file)
+      })
+
+      if (!params.import.token) {
+         throw new Error('Notion import token is required. Aborting.')
+      }
+
+      if (params.export) {
+         if (params.export.database === params.import.database) {
+            params.export.token = params.export.token || params.import.token
+         } else if (!params.export.token) {
+            throw new Error('Notion export token is required. Aborting.')
+         }
+      }
+
+      this.config = params
    }
 
    public run = async () => {
       // get all data from notion
       logger.info('Gathering data from Notion...')
-      const notionData = await getAllNotionData(this.config.import.database, process.env.NOTION_TOKEN, {
+      const notionData = await getAllNotionData(this.config.import.database, this.config.import.token, {
          filter: this.config.import.filters,
          sorts: this.config.import.sorts,
          limit: this.config.import.limit,
@@ -128,6 +165,8 @@ class Lotion {
       if (this.config.export) {
          await this.exportData(formattedData)
       }
+
+      return formattedData
    }
 
    private filterRow = (item: any): FilteredRow => {
@@ -248,29 +287,32 @@ class Lotion {
          // save local files before transforming
          switch (definition.type) {
             case 'file':
-            case 'image':
-               let fileData: SchemaFile = await saveFileLocally(
-                  row[definition.field],
-                  this.outputPath.content.absolute,
-                  [row.id, sanitizeText(definition.field), 0].join('_')
+            case 'image': {
+               const remoteUrl = row[definition.field]
+               let fileData: SchemaFile = await createSchemaFile(
+                  remoteUrl,
+                  this.config.contentDir,
+                  [row.id, sanitizeText(definition.field), 0].join('_'),
+                  !this.isMemoryOnly
                )
-               fileData.path = this.outputPath.content.relative || fileData.path
                row[definition.field] = fileData
                break
+            }
             case 'files':
-            case 'images':
+            case 'images': {
                row[definition.field] = await Promise.all(
                   row[definition.field].map(async (remoteUrl: string, index: number) => {
-                     let fileData: SchemaFile = await saveFileLocally(
+                     let fileData: SchemaFile = await createSchemaFile(
                         remoteUrl,
-                        this.outputPath.content.absolute,
-                        [row.id, sanitizeText(definition.field), index].join('_')
+                        this.config.contentDir,
+                        [row.id, sanitizeText(definition.field), index].join('_'),
+                        !this.isMemoryOnly
                      )
-                     fileData.path = this.outputPath.content.relative || fileData.path
                      return fileData
                   })
                )
                break
+            }
             default:
                break
          }
@@ -310,8 +352,21 @@ class Lotion {
    }
 
    private createOutputFiles = async (formattedData: any) => {
-      for await (const file of this.config.outputFiles) {
-         const filePath = path.join(this.outputPath.data.absolute, file)
+      if (this.isMemoryOnly) {
+         logger.info('Memory only output. Skipping file creation.')
+         return
+      }
+
+      for await (const filePath of this.config.outputFiles) {
+         if (filePath === 'memory') {
+            continue
+         }
+
+         const fileDir = path.dirname(filePath)
+         if (!fs.existsSync(fileDir)) {
+            logger.info(`Creating directory ${fileDir}`)
+            fs.mkdirSync(fileDir, { recursive: true })
+         }
          logger.info(`Writing data to ${filePath}`)
          // get the file extension
          const fileExtension = path.extname(filePath)
@@ -363,17 +418,17 @@ class Lotion {
          logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
 
          if (!row.id) {
-            await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+            await createPage(this.config.export.token, this.config.export.database, row.properties)
             continue
          } else {
-            const existingPage = await getPage(process.env.NOTION_TOKEN, row.id)
+            const existingPage = await getPage(this.config.export.token, row.id)
             if (!existingPage) {
-               await createPage(process.env.NOTION_TOKEN, this.config.export.database, row.properties)
+               await createPage(this.config.export.token, this.config.export.database, row.properties)
                continue
             }
          }
 
-         await updatePageProperties(process.env.NOTION_TOKEN, row.id, row.properties)
+         await updatePageProperties(this.config.export.token, row.id, row.properties)
       }
    }
 }
