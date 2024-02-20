@@ -1,38 +1,64 @@
 import { Client as NotionClient } from '@notionhq/client'
+import { QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 
 import { LotionFieldType, NotionDatabaseQueryParams } from 'src/types'
 
 export const getAllNotionData = async (database_id: string, token: string, params: NotionDatabaseQueryParams) => {
    const NOTION = new NotionClient({ auth: token })
-
    const { sorts, filter } = params
-   let limit = params.limit || Infinity
 
-   let response = await NOTION.databases.query({
-      database_id,
-      sorts,
-      filter,
-      page_size: limit < 100 ? limit : undefined,
-   })
-   const results = response.results
+   const getOffsetCursor = async (offset: number | undefined): Promise<string | undefined> => {
+      if (!offset) {
+         return undefined
+      }
 
-   // cycle through all pages of results
-   while (response.has_more && results.length < limit) {
-      response = await NOTION.databases.query({
-         database_id,
-         sorts,
-         filter,
-         start_cursor: response.next_cursor,
-      })
-      results.push(...response.results)
+      let response: Partial<QueryDatabaseResponse> = {
+         has_more: true,
+         next_cursor: undefined,
+      }
+
+      // cycle through all pages of results
+      while (response.has_more && offset > 0) {
+         response = await NOTION.databases.query({
+            database_id,
+            sorts,
+            filter,
+            page_size: offset < 100 ? offset : undefined,
+            start_cursor: response.next_cursor,
+         })
+         offset -= response.results.length
+      }
+
+      return response.next_cursor
    }
 
-   limit = params.limit || results.length
-   const offset = params.offset || 0
+   const getResults = async (
+      next_cursor: string | undefined,
+      limit: number | undefined
+   ): Promise<QueryDatabaseResponse['results']> => {
+      const results: QueryDatabaseResponse['results'] = []
 
-   if (limit < results.length || offset > 0) {
-      return results.slice(offset, offset + limit)
+      let response: Partial<QueryDatabaseResponse> = {
+         has_more: true,
+         next_cursor,
+      }
+
+      while (response.has_more && (!limit || results.length < limit)) {
+         response = await NOTION.databases.query({
+            database_id,
+            sorts,
+            filter,
+            page_size: limit ? limit - results.length : undefined,
+            start_cursor: response.next_cursor,
+         })
+         results.push(...response.results)
+      }
+
+      return results
    }
+
+   const startingAt = await getOffsetCursor(params.offset)
+   const results = await getResults(startingAt, params.limit)
 
    return results
 }
