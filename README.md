@@ -191,8 +191,10 @@ The pre-processing is done to the row data before it is passed to these function
 <details>
 <summary>.env file</summary>
 
-```.env
+```sh
 NOTION_IMPORT_TOKEN=secret_1234567890abcdef1234567890abcdef
+
+# required if the export database is different than the import database
 NOTION_EXPORT_TOKEN=secret_1234567890abcdef1234567890abcdef
 ```
 </details>

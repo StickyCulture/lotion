@@ -44,7 +44,54 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    relation: '',
    relations: [],
 }
-
+/**
+ * Lotion is a class that allows you to import data from Notion into a JSON, JS, or TS file or as a JavaScript object in memory.
+ *
+ * Lotion automatically simplifies the data from Notion into a format that is easier to work with and allows you to apply additional transformations and validations before it is output. You define the schema you want for your data and Lotion will reshape the data to match that schema.
+ *
+ * Lotion also allows you to export the data to another Notion database after transformations and validations.
+ *
+ * @example
+ * const lotion = new Lotion({
+ *    contentDir: '/path/to/content',
+ *    outputFiles: ['data.json'],
+ *    import: {
+ *       database: '12345678-1234-1234-1234-1234567890ab',
+ *       token: 'secret_123
+ *       fields: [
+ *          { field: 'id', type: 'uuid' },
+ *          { field: 'Custom ID', type: 'index', transform: value => value.value },
+ *          { field: 'Item Name', type: 'title' },
+ *          { field: 'Description', type: 'richText' },
+ *          { field: 'Subtitle', type: 'text' },
+ *          { field: 'Files', type: 'files' },
+ *          { field: 'Images', type: 'images' },
+ *          { field: 'Category', type: 'option' },
+ *          { field: 'Quantity', type: 'number' },
+ *          { field: 'Tags', type: 'options', transform: arr => arr.map(item => item.toLowerCase())},
+ *          { field: 'Is Published', type: 'boolean', validate: value => value },
+ *          { field: 'Related', type: 'relation' },
+ *       ],
+ *       schema: {
+ *          id: 'id',
+ *          title: 'Item Name',
+ *          subtitle: 'Subtitle',
+ *          description: 'Description',
+ *          media: {
+ *             files: 'Files',
+ *             images: 'Images',
+ *          },
+ *          category: 'Category',
+ *          quantity: 'Quantity',
+ *          tags: 'Tags',
+ *          related: 'Related',
+ *          notionPageId: 'id',
+ *          notionLookupId: 'Custom ID',
+ *       },
+ *    },
+ * })
+ * const data = await lotion.run()
+ */
 class Lotion {
    private config: LotionConstructor
 
@@ -95,29 +142,9 @@ class Lotion {
       this.config = params
    }
 
-   public testFields = async (scope: LotionConstructor['import'] | LotionConstructor['export']) => {
-      const response = await getDatabase(scope.database, scope.token)
-
-      const incorrectFields: string[] = []
-      scope.fields.forEach(expectedProperty => {
-         const name = expectedProperty.field
-         if (name === 'id') {
-            return
-         }
-         const property = response.properties[name]
-         if (!property) {
-            incorrectFields.push(expectedProperty.field)
-         }
-      })
-
-      if (incorrectFields.length) {
-         logger.error(
-            `\nThe following fields are not present in the Notion database:\n  - ${incorrectFields.join('\n  - ')}`
-         )
-         this.cancel()
-      }
-   }
-
+   /**
+    * Run the Lotion instance
+    */
    public run = async () => {
       // test all fields
       await this.testFields(this.config.import)
@@ -208,6 +235,29 @@ class Lotion {
    public cancel = () => {
       logger.warn('\nOperation cancelled.\n')
       process.exit(1)
+   }
+
+   private testFields = async (scope: LotionConstructor['import'] | LotionConstructor['export']) => {
+      const response = await getDatabase(scope.database, scope.token)
+
+      const incorrectFields: string[] = []
+      scope.fields.forEach(expectedProperty => {
+         const name = expectedProperty.field
+         if (name === 'id') {
+            return
+         }
+         const property = response.properties[name]
+         if (!property) {
+            incorrectFields.push(expectedProperty.field)
+         }
+      })
+
+      if (incorrectFields.length) {
+         logger.error(
+            `\nThe following fields are not present in the Notion database:\n  - ${incorrectFields.join('\n  - ')}`
+         )
+         this.cancel()
+      }
    }
 
    private filterRow = (item: any): FilteredRow => {
