@@ -1,5 +1,10 @@
 import { Client as NotionClient } from '@notionhq/client'
-import { PartialDatabaseObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
+import {
+   BlockObjectResponse,
+   PartialBlockObjectResponse,
+   PartialDatabaseObjectResponse,
+   QueryDatabaseResponse,
+} from '@notionhq/client/build/src/api-endpoints'
 
 import { LotionFieldType, NotionDatabaseQueryParams } from 'src/types'
 
@@ -196,7 +201,10 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
    }
 }
 
-export const getAllPageBlocks = async (block_id: string, token: string) => {
+export const getAllPageBlocks = async (
+   block_id: string,
+   token: string
+): Promise<(BlockObjectResponse | PartialBlockObjectResponse)[]> => {
    const NOTION = new NotionClient({ auth: token })
 
    let response = await NOTION.blocks.children.list({

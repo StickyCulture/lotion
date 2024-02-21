@@ -17,8 +17,17 @@ import { useJsonTemplate } from './template/json'
 import { useJavascriptTemplate } from './template/javascript'
 import { useTypescriptTemplate } from './template/typescript'
 
-import { LotionFieldType, SchemaFile, FilteredRow, LotionFieldExport, SchemaIndex, LotionConstructor } from './types'
-import { getPlaintext, getRichText, sanitizeText } from './utils/text'
+import {
+   LotionFieldType,
+   SchemaFile,
+   FilteredRow,
+   LotionFieldExport,
+   SchemaIndex,
+   LotionConstructor,
+   SchemaRichText,
+} from './types'
+import { convertToPlaintext, convertToRichText, sanitizeText } from './utils/text'
+import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
@@ -264,7 +273,25 @@ class Lotion {
          }
 
          if (input.type === 'blocks') {
-            result[input.field] = await getAllPageBlocks(item.id, this.config.import.token)
+            const blocks = await getAllPageBlocks(item.id, this.config.import.token)
+            const blockRichText: SchemaRichText[][] = []
+            blocks.forEach((block: BlockObjectResponse) => {
+               if (!block.type) {
+                  logger.warn(`Block ${block.id} has no type and may be a partial block response. Skipping.`)
+                  return
+               }
+               if (block.has_children) {
+                  logger.warn(`Block ${block.id} has children. This isn't yet supported. Skipping.`)
+                  return
+               }
+               const data: any = (block as any)[block.type]
+               if (data && data.rich_text) {
+                  blockRichText.push(convertToRichText(data.rich_text))
+               } else {
+                  logger.warn(`Block ${block.id} has no rich text. Skipping.`)
+               }
+            })
+            result[input.field] = blockRichText
             logger.verbose(result[input.field])
             continue
          }
