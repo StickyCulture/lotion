@@ -31,7 +31,7 @@ Pick.default
 
 #### Defined in
 
-[src/types.ts:37](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L37)
+[src/types.ts:37](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L37)
 
 ___
 
@@ -45,7 +45,7 @@ Pick.field
 
 #### Defined in
 
-[src/types.ts:35](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L35)
+[src/types.ts:35](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L35)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:43](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L43)
+[src/types.ts:43](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L43)
 
 ___
 
@@ -69,4 +69,4 @@ Pick.type
 
 #### Defined in
 
-[src/types.ts:36](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L36)
+[src/types.ts:36](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L36)

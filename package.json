@@ -10,7 +10,7 @@
     "docs": "typedoc --readme none --cleanOutputDir --out docs --plugin typedoc-plugin-markdown --entryPointStrategy expand ./src/index.ts ./src/types.ts",
     "test:js": "yarn run build && node dist/index.js",
     "test:cli": "yarn run build && node dist/cli.js",
-    "prepare": "yarn run build"
+    "prepare": "yarn build && husky"
   },
   "bin": {
     "sticky-utils-lotion": "dist/cli.js"
@@ -21,6 +21,7 @@
   "author": "Justin Seibert",
   "license": "ISC",
   "devDependencies": {
+    "husky": "^9.0.11",
     "ts-node": "^10.9.1",
     "typedoc": "^0.25.8",
     "typedoc-plugin-markdown": "^3.17.1",

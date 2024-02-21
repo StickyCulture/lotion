@@ -22,7 +22,7 @@
 
 #### Defined in
 
-[src/types.ts:85](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L85)
+[src/types.ts:85](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L85)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:87](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L87)
+[src/types.ts:87](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L87)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:84](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L84)
+[src/types.ts:84](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L84)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:83](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L83)
+[src/types.ts:83](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L83)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:86](https://github.com/sticky/sticky-utils-lotion/blob/0fd9242/src/types.ts#L86)
+[src/types.ts:86](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L86)
