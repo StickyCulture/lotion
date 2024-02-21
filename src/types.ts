@@ -1,4 +1,4 @@
-import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints'
+import { QueryDatabaseParameters, TextRichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
 
 export enum LoggerLogLevel {
    NONE,
@@ -78,6 +78,12 @@ export type LotionConstructor = Pick<LotionConfig, 'contentDir' | 'outputFiles' 
 export interface LotionEnvironment {
    notionImportToken: string
    notionExportToken: string
+}
+
+export interface SchemaRichText {
+   text: string
+   href: string | null
+   annotations: TextRichTextItemResponse['annotations']
 }
 
 export interface SchemaFile {

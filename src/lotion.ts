@@ -18,7 +18,7 @@ import { useJavascriptTemplate } from './template/javascript'
 import { useTypescriptTemplate } from './template/typescript'
 
 import { LotionFieldType, SchemaFile, FilteredRow, LotionFieldExport, SchemaIndex, LotionConstructor } from './types'
-import { sanitizeText } from './utils/text'
+import { getPlaintext, getRichText, sanitizeText } from './utils/text'
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
@@ -296,19 +296,11 @@ class Lotion {
             case 'title':
             case 'text':
                // convert the original array to a plaintext string
-               result[input.field] = rawValue.length
-                  ? rawValue.map((value: any) => value.plain_text).join('')
-                  : defaultValue
+               result[input.field] = rawValue.length ? convertToPlaintext(rawValue) : defaultValue
                break
             case 'richText':
                // this is a special case because the raw value is an array of objects
-               result[input.field] = rawValue.length
-                  ? rawValue.map((value: any) => ({
-                       text: value.plain_text,
-                       href: value.href,
-                       annotations: value.annotations,
-                    }))
-                  : defaultValue
+               result[input.field] = rawValue.length ? convertToRichText(rawValue) : defaultValue
                break
             case 'file':
             case 'image':
