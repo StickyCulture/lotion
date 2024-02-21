@@ -7,6 +7,7 @@
   "scripts": {
     "cli": "echo '#!/usr/bin/env node' | cat - dist/cli.js > temp && mv temp dist/cli.js",
     "build": "tsc -p tsconfig.json && yarn run cli",
+    "docs": "typedoc --readme none --cleanOutputDir --out docs --plugin typedoc-plugin-markdown --entryPointStrategy expand ./src/index.ts ./src/types.ts",
     "test:js": "yarn run build && node dist/index.js",
     "test:cli": "yarn run build && node dist/cli.js",
     "prepare": "yarn run build"
@@ -21,6 +22,8 @@
   "license": "ISC",
   "devDependencies": {
     "ts-node": "^10.9.1",
+    "typedoc": "^0.25.8",
+    "typedoc-plugin-markdown": "^3.17.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
