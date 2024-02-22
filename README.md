@@ -20,11 +20,14 @@ Add a script to your package.json.
 
 ```json
 {
-  "scripts": {
-    "lotion": "sticky-utils-lotion",
-	 "lotion:media": "sticky-utils-lotion --config ./media.lotion.config.js",
-	 "lotion:help": "sticky-utils-lotion --help",
-  }
+   "scripts": {
+      "lotion": "sticky-utils-lotion",
+      "lotion:media": "sticky-utils-lotion --config ./media.lotion.config.js",
+      "lotion:help": "sticky-utils-lotion --help"
+   },
+   "devDependencies": {
+      "sticky-utils-lotion": "git+https://github.com/sticky/sticky-utils-lotion#123456"
+   }
 }
 ```
 
