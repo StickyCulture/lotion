@@ -6,6 +6,7 @@ import {
    createPage,
    formatExportData,
    getAllNotionData,
+   getAllPageBlocks,
    getDatabase,
    getPage,
    updatePageProperties,
@@ -18,14 +19,15 @@ import { useTypescriptTemplate } from './template/typescript'
 
 import {
    LotionFieldType,
-   LotionField,
    SchemaFile,
    FilteredRow,
    LotionFieldExport,
    SchemaIndex,
    LotionConstructor,
+   SchemaBlock,
 } from './types'
-import { sanitizeText } from './utils/text'
+import { convertToPlaintext, convertToRichText, sanitizeText } from './utils/text'
+import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
 const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    uuid: '',
@@ -43,6 +45,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    option: '',
    relation: '',
    relations: [],
+   blocks: [],
 }
 /**
  * Lotion is a class that allows you to import data from Notion into a JSON, JS, or TS file or as a JavaScript object in memory.
@@ -51,13 +54,23 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
  *
  * Lotion also allows you to export the data to another Notion database after transformations and validations.
  *
+ * Syncing the Notion data happens in 4 main stages. These are listed here to insight into the order of operations in case your transformers or validators are not behaving as expected.
+ *
+ * 1. Fetch the data from Notion and flatten it into a useable raw format.
+ * 1. Validate the raw data and cancel processing any data that is invalid. This is where the `validate` functions are run.
+ * 1. Transform the validated data based on the `transform` functions.
+ * 1. Re-shape the transformed data based on the `schema` definition.
+ *
+ * Both validate and transform functions are each passed 2 arguments containing lightly pre-processed data from Notion. The first argument is the value of the field being processed and the second argument is the entire row of data being processed.
+ *
  * @example
+ * ```javascript
  * const lotion = new Lotion({
  *    contentDir: '/path/to/content',
  *    outputFiles: ['data.json'],
  *    import: {
  *       database: '12345678-1234-1234-1234-1234567890ab',
- *       token: 'secret_123
+ *       token: 'secret_123',
  *       fields: [
  *          { field: 'id', type: 'uuid' },
  *          { field: 'Custom ID', type: 'index', transform: value => value.value },
@@ -91,6 +104,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
  *    },
  * })
  * const data = await lotion.run()
+ * ```
  */
 class Lotion {
    private config: LotionConstructor
@@ -147,7 +161,6 @@ class Lotion {
     */
    public run = async () => {
       // test all fields
-      await this.testFields(this.config.import)
       if (this.config.export) {
          await this.testFields(this.config.export)
       }
@@ -189,7 +202,7 @@ class Lotion {
          logger.indent = this.progress.length + 1
 
          // filter the raw data
-         const filteredRow: FilteredRow = this.filterRow(row)
+         const filteredRow: FilteredRow = await this.filterRow(row)
 
          // skip if invalid
          const isValid = await this.validateRow(filteredRow)
@@ -260,14 +273,38 @@ class Lotion {
       }
    }
 
-   private filterRow = (item: any): FilteredRow => {
+   private filterRow = async (item: any): Promise<FilteredRow> => {
       const result: FilteredRow = {}
-      this.config.import.fields.forEach((input: LotionField) => {
+      for await (const input of this.config.import.fields) {
          logger.verbose(`Getting raw input for ${input.field}`)
 
          if (input.field === 'id' && input.type === 'uuid') {
             result[input.field] = item.id
-            return
+            continue
+         }
+
+         if (input.type === 'blocks') {
+            const blocks = await getAllPageBlocks(item.id, this.config.import.token)
+            const blockRichText: SchemaBlock[] = []
+            blocks.forEach((block: BlockObjectResponse) => {
+               if (!block.type) {
+                  logger.warn(`Block ${block.id} has no type and may be a partial block response. Skipping.`)
+                  return
+               }
+               if (block.has_children) {
+                  logger.warn(`Block ${block.id} has children. This isn't yet supported. Skipping.`)
+                  return
+               }
+               const data: any = (block as any)[block.type]
+               if (data && data.rich_text) {
+                  blockRichText.push(convertToRichText(data.rich_text))
+               } else {
+                  logger.warn(`Block ${block.id} has no rich text. Skipping.`)
+               }
+            })
+            result[input.field] = blockRichText
+            logger.verbose(result[input.field])
+            continue
          }
 
          const defaultValue = input.default || UNKNOWN_DEFAULTS[input.type]
@@ -276,7 +313,7 @@ class Lotion {
          if (!item.properties[input.field]) {
             logger.warn(`Field ${input.field} not found in item. Using default value.`)
             result[input.field] = defaultValue
-            return
+            continue
          }
 
          // if the field is a property of item.properties object, return its raw or default value
@@ -297,25 +334,17 @@ class Lotion {
             case 'title':
             case 'text':
                // convert the original array to a plaintext string
-               result[input.field] = rawValue.length
-                  ? rawValue.map((value: any) => value.plain_text).join('')
-                  : defaultValue
-               return
+               result[input.field] = rawValue.length ? convertToPlaintext(rawValue) : defaultValue
+               break
             case 'richText':
                // this is a special case because the raw value is an array of objects
-               result[input.field] = rawValue.length
-                  ? rawValue.map((value: any) => ({
-                       text: value.plain_text,
-                       href: value.href,
-                       annotations: value.annotations,
-                    }))
-                  : defaultValue
-               return
+               result[input.field] = rawValue.length ? convertToRichText(rawValue) : defaultValue
+               break
             case 'file':
             case 'image':
                // only one value is expected for these types
                result[input.field] = rawValue.length > 0 ? rawValue[0].file.url : defaultValue
-               return
+               break
             case 'option':
                // only one value is expected for this types
                if (property.type === 'multi_select') {
@@ -325,12 +354,12 @@ class Lotion {
                } else {
                   result[input.field] = defaultValue
                }
-               return
+               break
             case 'files':
             case 'images':
                // multiple values are allowed for these types
                result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.file.url) : defaultValue
-               return
+               break
             case 'options':
                // multiple values are allowed for these types
                if (property.type === 'multi_select') {
@@ -340,20 +369,20 @@ class Lotion {
                } else {
                   result[input.field] = defaultValue
                }
-               return
+               break
             case 'relation':
                // one one value is expected for this type
                result[input.field] = rawValue.length > 0 ? rawValue[0].id : defaultValue
-               return
+               break
             case 'relations':
                // multiple values are allowed for this type
                result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
-               return
+               break
             default:
                result[input.field] = rawValue
-               return
+               break
          }
-      })
+      }
       return result
    }
 

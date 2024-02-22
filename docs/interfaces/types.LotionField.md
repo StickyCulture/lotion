@@ -20,9 +20,11 @@
 
 • `Optional` **default**: `any`
 
+The default value to use if the field is not found in the Notion API response
+
 #### Defined in
 
-[src/types.ts:37](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L37)
+[src/types.ts:163](https://github.com/sticky/sticky-utils-lotion/blob/73489c2/src/types.ts#L163)
 
 ___
 
@@ -30,26 +32,38 @@ ___
 
 • **field**: `string`
 
+The name of the field (property) in the Notion API response
+
+Should exactly match the name of the property in the Notion database
+
 #### Defined in
 
-[src/types.ts:35](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L35)
+[src/types.ts:153](https://github.com/sticky/sticky-utils-lotion/blob/73489c2/src/types.ts#L153)
 
 ___
 
 ### transform
 
-• `Optional` **transform**: (`value`: `any`, `item`: `any`) => `Promise`\<`any`\>
+• `Optional` **transform**: (`value`: `any`, `row`: `any`) => `Promise`\<`any`\>
+
+A function to transform the value of the field
+
+The function should return the transformed value
 
 #### Type declaration
 
-▸ (`value`, `item`): `Promise`\<`any`\>
+▸ (`value`, `row`): `Promise`\<`any`\>
+
+A function to transform the value of the field
+
+The function should return the transformed value
 
 ##### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `value` | `any` |
-| `item` | `any` |
+| `row` | `any` |
 
 ##### Returns
 
@@ -57,7 +71,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:39](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L39)
+[src/types.ts:175](https://github.com/sticky/sticky-utils-lotion/blob/73489c2/src/types.ts#L175)
 
 ___
 
@@ -65,26 +79,38 @@ ___
 
 • **type**: [`LotionFieldType`](../modules/types.md#lotionfieldtype)
 
+The type of field to target in the Notion API response
+
+This will determine the output type of the field when passing to `validate` and `transform` functions as well as the final `schema` object.
+
 #### Defined in
 
-[src/types.ts:36](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L36)
+[src/types.ts:159](https://github.com/sticky/sticky-utils-lotion/blob/73489c2/src/types.ts#L159)
 
 ___
 
 ### validate
 
-• `Optional` **validate**: (`value`: `any`, `item`: `any`) => `Promise`\<`boolean`\>
+• `Optional` **validate**: (`value`: `any`, `row`: `any`) => `Promise`\<`boolean`\>
+
+A function to validate the value of the field
+
+If the function returns `false`, the associated row will be skipped
 
 #### Type declaration
 
-▸ (`value`, `item`): `Promise`\<`boolean`\>
+▸ (`value`, `row`): `Promise`\<`boolean`\>
+
+A function to validate the value of the field
+
+If the function returns `false`, the associated row will be skipped
 
 ##### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `value` | `any` |
-| `item` | `any` |
+| `row` | `any` |
 
 ##### Returns
 
@@ -92,4 +118,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:38](https://github.com/sticky/sticky-utils-lotion/blob/2800d26/src/types.ts#L38)
+[src/types.ts:169](https://github.com/sticky/sticky-utils-lotion/blob/73489c2/src/types.ts#L169)
