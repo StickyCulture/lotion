@@ -20,14 +20,14 @@ Add a script to your package.json.
 
 ```json
 {
-   "scripts": {
-      "lotion": "sticky-utils-lotion",
-      "lotion:media": "sticky-utils-lotion --config ./media.lotion.config.js",
-      "lotion:help": "sticky-utils-lotion --help"
-   },
-   "devDependencies": {
-      "sticky-utils-lotion": "git+https://github.com/sticky/sticky-utils-lotion#123456"
-   }
+  "scripts": {
+    "lotion": "sticky-utils-lotion",
+    "lotion:media": "sticky-utils-lotion --config ./media.lotion.config.js",
+    "lotion:help": "sticky-utils-lotion --help"
+  },
+  "devDependencies": {
+    "sticky-utils-lotion": "git+https://github.com/sticky/sticky-utils-lotion#123456"
+  }
 }
 ```
 
@@ -63,123 +63,123 @@ NOTION_EXPORT_TOKEN=secret_1234567890abcdef1234567890abcdef
 const myCustomGptApi = require('./myCustomGptApi.js')
 
 module.exports = {
-	envFile: './.env',
-	contentDir: './public/content/images',
-	outputFiles: [
-		'./src/data/output.ts',
-		'./backup/database.json',
-	],
-	logLevel: 'detailed',
-	import: {
-		database: '1234567890abcdef1234567890abcdef',
-		sorts: [{
-			property: 'ID',
-			direction: 'ascending'
-		}],
-		filter: {
-			and: [
-				{
-					property: 'Description',
-					rich_text: {
-						is_not_empty: true
-					}
-				},
-				{
-					property: 'Omit',
-					checkbox: {
-						equals: false
-					}
-				}
-			]
-		},
-		fields: [
-			{
-				field: 'id',
-				type: 'uuid',
-			},
-			{
-				field: 'ID',
-				type: 'index'
-			},
-			{
-				field: 'Name',
-				type: 'title',
-			},
-			{
-				field: 'Description',
-				type: 'richText',
-			},
-			{
-				field: 'Hero Image',
-				type: 'image',
-			},
-			{
-				field: 'Tags',
-				type: 'options',
-				transform: (value, row) => {
-					return value.map((tag) => {
-						return {
-							name: tag.toLowerCase(),
-							color: row['Value'] > 0 ? 'green' : 'red',
-						}
-					})
-				},
-			},
-			{
-				field: 'Value',
-				type: 'number',
-				default: 0,
-			},
-			{
-				field: 'Related Attachment Files',
-				type: 'files',
-			},
-			{
-				field: 'Is Published',
-				type: 'boolean',
-				validate: (value) => {
-					return value
-				}
-			},
-			{
-				field: '_project',
-				type: 'text',
-				default: 'Custom Project',
-			},
-		],
-		schema: {
-			id: 'id',
-			title: 'Name',
-			description: 'Description',
-			image: 'Hero Image',
-			attachments: 'Related Attachment Files',
-			metadata: {
-				tags: 'Tags',
-				value: 'Value',
-				project: '_project',
-			}
-		},
-		postProcess: async (data) => {
-			const prompt = "Rewrite the following description in plain language that a 5th grader could understand:"
-			for (const item of data) {
-				item.description_g5 = await myCustomGptApi(prompt, item.description)
-			}
-			return data
-		},
-		export: {
-			database: '1234567890abcdef1234567890abcdef',
-			fields: [
-				{
-					field: 'id',
-					type: 'uuid',
-					input: 'id',
-				},
-				{
-					field: '5th Grade Description',
-					type: 'richText',
-					input: 'description',
-				},
-			],
-		}
-	},
+  envFile: './.env',
+  contentDir: './public/content/images',
+  outputFiles: [
+    './src/data/output.ts',
+    './backup/database.json',
+  ],
+  logLevel: 'detailed',
+  import: {
+    database: '1234567890abcdef1234567890abcdef',
+    sorts: [{
+      property: 'ID',
+      direction: 'ascending'
+    }],
+    filter: {
+      and: [
+        {
+          property: 'Description',
+          rich_text: {
+            is_not_empty: true
+          }
+        },
+        {
+          property: 'Omit',
+          checkbox: {
+            equals: false
+          }
+        }
+      ]
+    },
+    fields: [
+      {
+        field: 'id',
+        type: 'uuid',
+      },
+      {
+        field: 'ID',
+        type: 'index'
+      },
+      {
+        field: 'Name',
+        type: 'title',
+      },
+      {
+        field: 'Description',
+        type: 'richText',
+      },
+      {
+        field: 'Hero Image',
+        type: 'image',
+      },
+      {
+        field: 'Tags',
+        type: 'options',
+        transform: (value, row) => {
+          return value.map((tag) => {
+            return {
+              name: tag.toLowerCase(),
+              color: row['Value'] > 0 ? 'green' : 'red',
+            }
+          })
+        },
+      },
+      {
+        field: 'Value',
+        type: 'number',
+        default: 0,
+      },
+      {
+        field: 'Related Attachment Files',
+        type: 'files',
+      },
+      {
+        field: 'Is Published',
+        type: 'boolean',
+        validate: (value) => {
+          return value
+        }
+      },
+      {
+        field: '_project',
+        type: 'text',
+        default: 'Custom Project',
+      },
+    ],
+    schema: {
+      id: 'id',
+      title: 'Name',
+      description: 'Description',
+      image: 'Hero Image',
+      attachments: 'Related Attachment Files',
+      metadata: {
+        tags: 'Tags',
+        value: 'Value',
+        project: '_project',
+      }
+    },
+    postProcess: async (data) => {
+      const prompt = "Rewrite the following description in plain language that a 5th grader could understand:"
+      for (const item of data) {
+        item.description_g5 = await myCustomGptApi(prompt, item.description)
+      }
+      return data
+    },
+    export: {
+      database: '1234567890abcdef1234567890abcdef',
+      fields: [
+        {
+          field: 'id',
+          type: 'uuid',
+          input: 'id',
+        },
+        {
+          field: '5th Grade Description',
+          type: 'richText',
+          input: 'description',
+        },
+      ],
+    }
+  },
 }
