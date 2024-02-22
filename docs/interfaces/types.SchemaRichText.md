@@ -20,7 +20,7 @@
 
 #### Defined in
 
-[src/types.ts:301](https://github.com/sticky/sticky-utils-lotion/blob/f5e5b92/src/types.ts#L301)
+[src/types.ts:301](https://github.com/sticky/sticky-utils-lotion/blob/c1edc53/src/types.ts#L301)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:300](https://github.com/sticky/sticky-utils-lotion/blob/f5e5b92/src/types.ts#L300)
+[src/types.ts:300](https://github.com/sticky/sticky-utils-lotion/blob/c1edc53/src/types.ts#L300)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:299](https://github.com/sticky/sticky-utils-lotion/blob/f5e5b92/src/types.ts#L299)
+[src/types.ts:299](https://github.com/sticky/sticky-utils-lotion/blob/c1edc53/src/types.ts#L299)

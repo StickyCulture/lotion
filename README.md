@@ -162,7 +162,8 @@ module.exports = {
     postProcess: async (data) => {
       const prompt = "Rewrite the following description in plain language that a 5th grader could understand:"
       for (const item of data) {
-        item.description_g5 = await myCustomGptApi(prompt, item.description)
+        const plaintextDescription = item.description.map((richtext) => richtext.text).join('')
+        item.description_g5 = await myCustomGptApi(prompt, plaintextDescription)
       }
       return data
     },
@@ -176,8 +177,8 @@ module.exports = {
         },
         {
           field: '5th Grade Description',
-          type: 'richText',
-          input: 'description',
+          type: 'text',
+          input: 'description_g5',
         },
       ],
     }
