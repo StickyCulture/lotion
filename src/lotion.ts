@@ -24,7 +24,7 @@ import {
    LotionFieldExport,
    SchemaIndex,
    LotionConstructor,
-   SchemaRichText,
+   SchemaBlock,
 } from './types'
 import { convertToPlaintext, convertToRichText, sanitizeText } from './utils/text'
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
@@ -54,13 +54,23 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
  *
  * Lotion also allows you to export the data to another Notion database after transformations and validations.
  *
+ * Syncing the Notion data happens in 4 main stages. These are listed here to insight into the order of operations in case your transformers or validators are not behaving as expected.
+ *
+ * 1. Fetch the data from Notion and flatten it into a useable raw format.
+ * 1. Validate the raw data and cancel processing any data that is invalid. This is where the `validate` functions are run.
+ * 1. Transform the validated data based on the `transform` functions.
+ * 1. Re-shape the transformed data based on the `schema` definition.
+ *
+ * Both validate and transform functions are each passed 2 arguments containing lightly pre-processed data from Notion. The first argument is the value of the field being processed and the second argument is the entire row of data being processed.
+ *
  * @example
+ * ```javascript
  * const lotion = new Lotion({
  *    contentDir: '/path/to/content',
  *    outputFiles: ['data.json'],
  *    import: {
  *       database: '12345678-1234-1234-1234-1234567890ab',
- *       token: 'secret_123
+ *       token: 'secret_123',
  *       fields: [
  *          { field: 'id', type: 'uuid' },
  *          { field: 'Custom ID', type: 'index', transform: value => value.value },
@@ -94,6 +104,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
  *    },
  * })
  * const data = await lotion.run()
+ * ```
  */
 class Lotion {
    private config: LotionConstructor
@@ -274,7 +285,7 @@ class Lotion {
 
          if (input.type === 'blocks') {
             const blocks = await getAllPageBlocks(item.id, this.config.import.token)
-            const blockRichText: SchemaRichText[][] = []
+            const blockRichText: SchemaBlock[] = []
             blocks.forEach((block: BlockObjectResponse) => {
                if (!block.type) {
                   logger.warn(`Block ${block.id} has no type and may be a partial block response. Skipping.`)
