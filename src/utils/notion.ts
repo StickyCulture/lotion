@@ -178,6 +178,12 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
             }
          }
       case 'relation':
+         if (!data) {
+            return undefined
+         }
+         if (Array.isArray(data)) {
+            data = data[0]
+         }
          return {
             relation: [
                {
@@ -186,10 +192,13 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
             ],
          }
       case 'relations':
+         if (!Array.isArray(data)) {
+            return undefined
+         }
          return {
-            relation: data.map((relation: string) => {
+            relation: data.map((id: string) => {
                return {
-                  id: relation,
+                  id,
                }
             }),
          }

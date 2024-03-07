@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[src/utils/config.ts:42](https://github.com/sticky/sticky-utils-lotion/blob/c1edc53/src/utils/config.ts#L42)
+[src/utils/config.ts:42](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/utils/config.ts#L42)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 #### Defined in
 
-[src/utils/config.ts:10](https://github.com/sticky/sticky-utils-lotion/blob/c1edc53/src/utils/config.ts#L10)
+[src/utils/config.ts:10](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/utils/config.ts#L10)

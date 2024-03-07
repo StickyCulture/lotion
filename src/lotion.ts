@@ -37,6 +37,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    richText: [],
    number: 0,
    boolean: false,
+   date: { start: new Date(), end: null },
    files: [],
    file: '',
    images: [],
@@ -161,8 +162,25 @@ class Lotion {
     */
    public run = async () => {
       // test all fields
+      const invalidImportFields = await this.testFields(this.config.import)
+      if (invalidImportFields.length) {
+         logger.warn(
+            `\nThe following fields are not present in the Notion import database:\n  - ${invalidImportFields.join(
+               '\n  - '
+            )}`
+         )
+      }
       if (this.config.export) {
-         await this.testFields(this.config.export)
+         const invalidExportFields = await this.testFields(this.config.export)
+         if (invalidExportFields.length) {
+            logger.error(
+               `\nThe following fields are not present in the Notion export database:\n  - ${invalidExportFields.join(
+                  '\n  - '
+               )}`
+            )
+            this.cancel()
+            return
+         }
       }
 
       // get all data from notion
@@ -202,9 +220,13 @@ class Lotion {
          logger.indent = this.progress.length + 1
 
          // filter the raw data
+         logger.verbose('Filtering raw data from...')
+         logger.verbose(row)
          const filteredRow: FilteredRow = await this.filterRow(row)
 
          // skip if invalid
+         logger.verbose('Validating filtered data...')
+         logger.verbose(filteredRow)
          const isValid = await this.validateRow(filteredRow)
          if (!isValid) {
             numInvalid++
@@ -265,14 +287,12 @@ class Lotion {
          }
       })
 
-      if (incorrectFields.length) {
-         logger.error(
-            `\nThe following fields are not present in the Notion database:\n  - ${incorrectFields.join('\n  - ')}`
-         )
-         this.cancel()
-      }
+      return incorrectFields
    }
 
+   /**
+    * The first stage of the import process. This function filters the raw data from Notion and returns a simplified object per Lotion's schema.
+    */
    private filterRow = async (item: any): Promise<FilteredRow> => {
       const result: FilteredRow = {}
       for await (const input of this.config.import.fields) {
@@ -318,7 +338,10 @@ class Lotion {
 
          // if the field is a property of item.properties object, return its raw or default value
          const property = item.properties[input.field]
-         const rawValue = property[property.type]
+         let rawValue = property[property.type]
+         if (property.type === 'formula' || property.type === 'rollup') {
+            rawValue = rawValue[rawValue.type]
+         }
 
          logger.verbose(rawValue)
          switch (input.type) {
@@ -326,10 +349,10 @@ class Lotion {
                const { prefix, number } = rawValue
                result[input.field] = {
                   number,
-                  prefix,
-                  value: `${prefix}${prefix ? '-' : ''}${number}`,
+                  prefix: prefix || '',
+                  value: `${prefix || ''}${prefix ? '-' : ''}${number}`,
                } as SchemaIndex
-               return
+               break
             }
             case 'title':
             case 'text':
@@ -351,6 +374,8 @@ class Lotion {
                   result[input.field] = rawValue.length > 0 ? rawValue[0] : defaultValue
                } else if (property.type === 'select') {
                   result[input.field] = rawValue ? rawValue.name : defaultValue
+               } else if (typeof rawValue === 'string') {
+                  result[input.field] = rawValue.split(',').map((item: string) => item.trim())[0]
                } else {
                   result[input.field] = defaultValue
                }
@@ -366,6 +391,8 @@ class Lotion {
                   result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
                } else if (property.type === 'select') {
                   result[input.field] = rawValue ? [rawValue.name] : defaultValue
+               } else if (typeof rawValue === 'string' && rawValue.includes(',')) {
+                  result[input.field] = rawValue.split(',').map((item: string) => item.trim())
                } else {
                   result[input.field] = defaultValue
                }
@@ -378,6 +405,18 @@ class Lotion {
                // multiple values are allowed for this type
                result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
                break
+            case 'date':
+               if (typeof rawValue === 'string') {
+                  result[input.field] = { start: new Date(rawValue), end: null }
+                  break
+               }
+               result[input.field] = {
+                  start: new Date(rawValue.start),
+                  end: rawValue.end ? new Date(rawValue.end) : null,
+               }
+               break
+            case 'boolean':
+            case 'number':
             default:
                result[input.field] = rawValue
                break
@@ -516,8 +555,12 @@ class Lotion {
          this.config.export.fields.forEach(({ field, input, type }: LotionFieldExport) => {
             const value = row[input]
             if (type === 'uuid') {
+               remappedRow.title = remappedRow.title || value
                remappedRow.id = value
                return
+            }
+            if (type === 'title') {
+               remappedRow.title = value
             }
             const reformattedData = formatExportData(value, type)
             if (reformattedData === undefined) {
@@ -535,7 +578,7 @@ class Lotion {
       for await (const row of notionData) {
          updateIndex++
          this.progress = logger.getProgress(updateIndex, notionData.length)
-         this.currentTitle = row.id
+         this.currentTitle = row.title
          logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
 
          if (!row.id) {
