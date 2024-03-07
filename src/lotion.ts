@@ -516,8 +516,12 @@ class Lotion {
          this.config.export.fields.forEach(({ field, input, type }: LotionFieldExport) => {
             const value = row[input]
             if (type === 'uuid') {
+               remappedRow.title = remappedRow.title || value
                remappedRow.id = value
                return
+            }
+            if (type === 'title') {
+               remappedRow.title = value
             }
             const reformattedData = formatExportData(value, type)
             if (reformattedData === undefined) {
@@ -535,7 +539,7 @@ class Lotion {
       for await (const row of notionData) {
          updateIndex++
          this.progress = logger.getProgress(updateIndex, notionData.length)
-         this.currentTitle = row.id
+         this.currentTitle = row.title
          logger.quiet(`${this.progress} Exporting item for ${this.currentTitle}`)
 
          if (!row.id) {
