@@ -37,6 +37,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    richText: [],
    number: 0,
    boolean: false,
+   date: { start: new Date(), end: null },
    files: [],
    file: '',
    images: [],
@@ -403,6 +404,16 @@ class Lotion {
             case 'relations':
                // multiple values are allowed for this type
                result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
+               break
+            case 'date':
+               if (typeof rawValue === 'string') {
+                  result[input.field] = { start: new Date(rawValue), end: null }
+                  break
+               }
+               result[input.field] = {
+                  start: new Date(rawValue.start),
+                  end: rawValue.end ? new Date(rawValue.end) : null,
+               }
                break
             case 'boolean':
             case 'number':

@@ -84,6 +84,14 @@ export type LotionFieldNumber = 'number'
 export type LotionFieldBoolean = 'boolean'
 
 /**
+ * Targets "Date" type page properties,
+ *
+ * Outputs a `SchemaDate` object
+ * @group Fields
+ */
+export type LotionFieldDate = 'date'
+
+/**
  * Targets "Files & Media" type page properties
  *
  * Outputs a `SchemaFile` or `SchemaFile[]` value depending on plurality
@@ -139,6 +147,7 @@ export type LotionFieldType =
    | LotionFieldRichText
    | LotionFieldNumber
    | LotionFieldBoolean
+   | LotionFieldDate
    | LotionFieldFiles
    | LotionFieldImages
    | LotionFieldOptions
@@ -323,6 +332,15 @@ export interface SchemaIndex {
    number: number
    prefix: string
    value: string
+}
+
+/**
+ * A date range object in UTC time. The `end` value may be `null` if the date is singular or the range is open-ended.
+ * @group Schema
+ */
+export interface SchemaDate {
+   start: Date
+   end: Date | null
 }
 
 /**

@@ -19,6 +19,7 @@
 
 - [LotionFieldBlocks](types.md#lotionfieldblocks)
 - [LotionFieldBoolean](types.md#lotionfieldboolean)
+- [LotionFieldDate](types.md#lotionfielddate)
 - [LotionFieldFiles](types.md#lotionfieldfiles)
 - [LotionFieldImages](types.md#lotionfieldimages)
 - [LotionFieldIndex](types.md#lotionfieldindex)
@@ -32,6 +33,7 @@
 
 ### Schema
 
+- [SchemaDate](../interfaces/types.SchemaDate.md)
 - [SchemaFile](../interfaces/types.SchemaFile.md)
 - [SchemaIndex](../interfaces/types.SchemaIndex.md)
 - [SchemaRichText](../interfaces/types.SchemaRichText.md)
@@ -43,7 +45,7 @@
 
 #### Defined in
 
-[src/types.ts:16](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L16)
+[src/types.ts:16](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L16)
 
 • **LotionConfig**: `Object`
 
@@ -51,31 +53,31 @@ The configuration object expected by the CLI when defined in a lotion.config.js 
 
 #### Defined in
 
-[src/types.ts:264](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L264)
+[src/types.ts:273](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L273)
 
 • **LotionExport**: `Object`
 
 #### Defined in
 
-[src/types.ts:255](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L255)
+[src/types.ts:264](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L264)
 
 • **LotionField**: `Object`
 
 #### Defined in
 
-[src/types.ts:151](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L151)
+[src/types.ts:160](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L160)
 
 • **LotionFieldExport**: `Object`
 
 #### Defined in
 
-[src/types.ts:185](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L185)
+[src/types.ts:194](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L194)
 
 • **LotionImport**: `Object`
 
 #### Defined in
 
-[src/types.ts:195](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L195)
+[src/types.ts:204](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L204)
 
 ### LotionConstructor
 
@@ -85,17 +87,17 @@ The constructor object expected by the Lotion class when used programmatically.
 
 #### Defined in
 
-[src/types.ts:293](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L293)
+[src/types.ts:302](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L302)
 
 ___
 
 ### LotionFieldType
 
-Ƭ **LotionFieldType**: [`LotionFieldUuid`](types.md#lotionfielduuid) \| [`LotionFieldIndex`](types.md#lotionfieldindex) \| [`LotionFieldTitle`](types.md#lotionfieldtitle) \| [`LotionFieldText`](types.md#lotionfieldtext) \| [`LotionFieldRichText`](types.md#lotionfieldrichtext) \| [`LotionFieldNumber`](types.md#lotionfieldnumber) \| [`LotionFieldBoolean`](types.md#lotionfieldboolean) \| [`LotionFieldFiles`](types.md#lotionfieldfiles) \| [`LotionFieldImages`](types.md#lotionfieldimages) \| [`LotionFieldOptions`](types.md#lotionfieldoptions) \| [`LotionFieldRelations`](types.md#lotionfieldrelations) \| [`LotionFieldBlocks`](types.md#lotionfieldblocks)
+Ƭ **LotionFieldType**: [`LotionFieldUuid`](types.md#lotionfielduuid) \| [`LotionFieldIndex`](types.md#lotionfieldindex) \| [`LotionFieldTitle`](types.md#lotionfieldtitle) \| [`LotionFieldText`](types.md#lotionfieldtext) \| [`LotionFieldRichText`](types.md#lotionfieldrichtext) \| [`LotionFieldNumber`](types.md#lotionfieldnumber) \| [`LotionFieldBoolean`](types.md#lotionfieldboolean) \| [`LotionFieldDate`](types.md#lotionfielddate) \| [`LotionFieldFiles`](types.md#lotionfieldfiles) \| [`LotionFieldImages`](types.md#lotionfieldimages) \| [`LotionFieldOptions`](types.md#lotionfieldoptions) \| [`LotionFieldRelations`](types.md#lotionfieldrelations) \| [`LotionFieldBlocks`](types.md#lotionfieldblocks)
 
 #### Defined in
 
-[src/types.ts:134](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L134)
+[src/types.ts:142](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L142)
 
 ## Fields
 
@@ -116,7 +118,7 @@ Note: this field type only supports first-level rich text content and will ignor
 
 #### Defined in
 
-[src/types.ts:129](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L129)
+[src/types.ts:137](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L137)
 
 ___
 
@@ -131,7 +133,21 @@ Outputs a `boolean` value
 
 #### Defined in
 
-[src/types.ts:84](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L84)
+[src/types.ts:84](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L84)
+
+___
+
+### LotionFieldDate
+
+Ƭ **LotionFieldDate**: ``"date"``
+
+Targets "Date" type page properties,
+
+Outputs a `SchemaDate` object
+
+#### Defined in
+
+[src/types.ts:92](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L92)
 
 ___
 
@@ -149,7 +165,7 @@ SchemaFile
 
 #### Defined in
 
-[src/types.ts:93](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L93)
+[src/types.ts:101](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L101)
 
 ___
 
@@ -164,7 +180,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:100](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L100)
+[src/types.ts:108](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L108)
 
 ___
 
@@ -182,7 +198,7 @@ SchemaIndex
 
 #### Defined in
 
-[src/types.ts:38](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L38)
+[src/types.ts:38](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L38)
 
 ___
 
@@ -196,7 +212,7 @@ Outputs a `number` value
 
 #### Defined in
 
-[src/types.ts:75](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L75)
+[src/types.ts:75](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L75)
 
 ___
 
@@ -211,7 +227,7 @@ Outputs a `string` or `string[]` value depending on plurality
 
 #### Defined in
 
-[src/types.ts:109](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L109)
+[src/types.ts:117](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L117)
 
 ___
 
@@ -225,7 +241,7 @@ Outputs the relation page `id` as `string` or `string[]` value depending on plur
 
 #### Defined in
 
-[src/types.ts:117](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L117)
+[src/types.ts:125](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L125)
 
 ___
 
@@ -244,7 +260,7 @@ SchemaRichText
 
 #### Defined in
 
-[src/types.ts:67](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L67)
+[src/types.ts:67](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L67)
 
 ___
 
@@ -259,7 +275,7 @@ Output a joined plaintext `string` from the API's `rich_text` array
 
 #### Defined in
 
-[src/types.ts:57](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L57)
+[src/types.ts:57](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L57)
 
 ___
 
@@ -275,7 +291,7 @@ Note: value is used as an identifier in log output when defined
 
 #### Defined in
 
-[src/types.ts:48](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L48)
+[src/types.ts:48](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L48)
 
 ___
 
@@ -289,27 +305,35 @@ Outputs a `string` value
 
 #### Defined in
 
-[src/types.ts:29](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L29)
+[src/types.ts:29](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L29)
 
 ## Schema
+
+• **SchemaDate**: `Object`
+
+A date range object in UTC time. The `end` value may be `null` if the date is singular or the range is open-ended.
+
+#### Defined in
+
+[src/types.ts:341](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L341)
 
 • **SchemaFile**: `Object`
 
 #### Defined in
 
-[src/types.ts:311](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L311)
+[src/types.ts:320](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L320)
 
 • **SchemaIndex**: `Object`
 
 #### Defined in
 
-[src/types.ts:322](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L322)
+[src/types.ts:331](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L331)
 
 • **SchemaRichText**: `Object`
 
 #### Defined in
 
-[src/types.ts:302](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L302)
+[src/types.ts:311](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L311)
 
 ### SchemaBlock
 
@@ -317,4 +341,4 @@ Outputs a `string` value
 
 #### Defined in
 
-[src/types.ts:331](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L331)
+[src/types.ts:349](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L349)
