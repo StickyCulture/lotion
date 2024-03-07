@@ -19,7 +19,7 @@
 
 #### Defined in
 
-[src/types.ts:252](https://github.com/sticky/sticky-utils-lotion/blob/dea178e/src/types.ts#L252)
+[src/types.ts:252](https://github.com/sticky/sticky-utils-lotion/blob/07af671/src/types.ts#L252)
 
 ___
 
@@ -29,4 +29,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:253](https://github.com/sticky/sticky-utils-lotion/blob/dea178e/src/types.ts#L253)
+[src/types.ts:253](https://github.com/sticky/sticky-utils-lotion/blob/07af671/src/types.ts#L253)

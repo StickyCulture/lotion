@@ -161,8 +161,25 @@ class Lotion {
     */
    public run = async () => {
       // test all fields
+      const invalidImportFields = await this.testFields(this.config.import)
+      if (invalidImportFields.length) {
+         logger.warn(
+            `\nThe following fields are not present in the Notion import database:\n  - ${invalidImportFields.join(
+               '\n  - '
+            )}`
+         )
+      }
       if (this.config.export) {
-         await this.testFields(this.config.export)
+         const invalidExportFields = await this.testFields(this.config.export)
+         if (invalidExportFields.length) {
+            logger.error(
+               `\nThe following fields are not present in the Notion export database:\n  - ${invalidExportFields.join(
+                  '\n  - '
+               )}`
+            )
+            this.cancel()
+            return
+         }
       }
 
       // get all data from notion
@@ -265,12 +282,7 @@ class Lotion {
          }
       })
 
-      if (incorrectFields.length) {
-         logger.error(
-            `\nThe following fields are not present in the Notion database:\n  - ${incorrectFields.join('\n  - ')}`
-         )
-         this.cancel()
-      }
+      return incorrectFields
    }
 
    private filterRow = async (item: any): Promise<FilteredRow> => {
