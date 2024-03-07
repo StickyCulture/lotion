@@ -33,7 +33,7 @@ Pick.default
 
 #### Defined in
 
-[src/types.ts:163](https://github.com/sticky/sticky-utils-lotion/blob/07af671/src/types.ts#L163)
+[src/types.ts:163](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L163)
 
 ___
 
@@ -51,7 +51,7 @@ Pick.field
 
 #### Defined in
 
-[src/types.ts:153](https://github.com/sticky/sticky-utils-lotion/blob/07af671/src/types.ts#L153)
+[src/types.ts:153](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L153)
 
 ___
 
@@ -63,7 +63,7 @@ The key name from the `import.schema` object that this field should be mapped to
 
 #### Defined in
 
-[src/types.ts:185](https://github.com/sticky/sticky-utils-lotion/blob/07af671/src/types.ts#L185)
+[src/types.ts:185](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L185)
 
 ___
 
@@ -81,4 +81,4 @@ Pick.type
 
 #### Defined in
 
-[src/types.ts:159](https://github.com/sticky/sticky-utils-lotion/blob/07af671/src/types.ts#L159)
+[src/types.ts:159](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L159)

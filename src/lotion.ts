@@ -219,9 +219,13 @@ class Lotion {
          logger.indent = this.progress.length + 1
 
          // filter the raw data
+         logger.verbose('Filtering raw data from...')
+         logger.verbose(row)
          const filteredRow: FilteredRow = await this.filterRow(row)
 
          // skip if invalid
+         logger.verbose('Validating filtered data...')
+         logger.verbose(filteredRow)
          const isValid = await this.validateRow(filteredRow)
          if (!isValid) {
             numInvalid++
@@ -285,6 +289,9 @@ class Lotion {
       return incorrectFields
    }
 
+   /**
+    * The first stage of the import process. This function filters the raw data from Notion and returns a simplified object per Lotion's schema.
+    */
    private filterRow = async (item: any): Promise<FilteredRow> => {
       const result: FilteredRow = {}
       for await (const input of this.config.import.fields) {
@@ -338,10 +345,10 @@ class Lotion {
                const { prefix, number } = rawValue
                result[input.field] = {
                   number,
-                  prefix,
-                  value: `${prefix}${prefix ? '-' : ''}${number}`,
+                  prefix: prefix || '',
+                  value: `${prefix || ''}${prefix ? '-' : ''}${number}`,
                } as SchemaIndex
-               return
+               break
             }
             case 'title':
             case 'text':
