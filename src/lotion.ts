@@ -337,7 +337,10 @@ class Lotion {
 
          // if the field is a property of item.properties object, return its raw or default value
          const property = item.properties[input.field]
-         const rawValue = property[property.type]
+         let rawValue = property[property.type]
+         if (property.type === 'formula' || property.type === 'rollup') {
+            rawValue = rawValue[rawValue.type]
+         }
 
          logger.verbose(rawValue)
          switch (input.type) {
@@ -370,6 +373,8 @@ class Lotion {
                   result[input.field] = rawValue.length > 0 ? rawValue[0] : defaultValue
                } else if (property.type === 'select') {
                   result[input.field] = rawValue ? rawValue.name : defaultValue
+               } else if (typeof rawValue === 'string') {
+                  result[input.field] = rawValue.split(',').map((item: string) => item.trim())[0]
                } else {
                   result[input.field] = defaultValue
                }
@@ -385,6 +390,8 @@ class Lotion {
                   result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
                } else if (property.type === 'select') {
                   result[input.field] = rawValue ? [rawValue.name] : defaultValue
+               } else if (typeof rawValue === 'string' && rawValue.includes(',')) {
+                  result[input.field] = rawValue.split(',').map((item: string) => item.trim())
                } else {
                   result[input.field] = defaultValue
                }
@@ -397,6 +404,8 @@ class Lotion {
                // multiple values are allowed for this type
                result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
                break
+            case 'boolean':
+            case 'number':
             default:
                result[input.field] = rawValue
                break

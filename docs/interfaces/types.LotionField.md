@@ -24,7 +24,7 @@ The default value to use if the field is not found in the Notion API response
 
 #### Defined in
 
-[src/types.ts:163](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L163)
+[src/types.ts:167](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L167)
 
 ___
 
@@ -38,7 +38,7 @@ Should exactly match the name of the property in the Notion database
 
 #### Defined in
 
-[src/types.ts:153](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L153)
+[src/types.ts:157](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L157)
 
 ___
 
@@ -71,7 +71,7 @@ The function should return the transformed value
 
 #### Defined in
 
-[src/types.ts:175](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L175)
+[src/types.ts:179](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L179)
 
 ___
 
@@ -85,7 +85,7 @@ This will determine the output type of the field when passing to `validate` and 
 
 #### Defined in
 
-[src/types.ts:159](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L159)
+[src/types.ts:163](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L163)
 
 ___
 
@@ -118,4 +118,4 @@ If the function returns `false`, the associated row will be skipped
 
 #### Defined in
 
-[src/types.ts:169](https://github.com/sticky/sticky-utils-lotion/blob/2f291b4/src/types.ts#L169)
+[src/types.ts:173](https://github.com/sticky/sticky-utils-lotion/blob/61d4e64/src/types.ts#L173)
