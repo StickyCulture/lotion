@@ -137,6 +137,14 @@ export type LotionFieldRelations = 'relation' | 'relations'
 export type LotionFieldBlocks = 'blocks'
 
 /**
+ * Targets any Notion field. When imported, the field will be output as-is from the Notion API. When exported, the field data must be configured to match the Notion API's expected format.
+ *
+ * Outputs a `BlockObjectRequest` value
+ * @group Fields
+ */
+export type LotionFieldManual = 'manual'
+
+/**
  * @group Configuration
  */
 export type LotionFieldType =
@@ -153,6 +161,7 @@ export type LotionFieldType =
    | LotionFieldOptions
    | LotionFieldRelations
    | LotionFieldBlocks
+   | LotionFieldManual
 
 /**
  * @group Configuration

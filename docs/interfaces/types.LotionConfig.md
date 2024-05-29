@@ -27,7 +27,7 @@ Path to the directory where imported Files and Media will be saved
 
 #### Defined in
 
-[src/types.ts:281](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L281)
+[src/types.ts:290](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L290)
 
 ___
 
@@ -39,7 +39,7 @@ Path to a `.env` file to load environment variables from
 
 #### Defined in
 
-[src/types.ts:277](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L277)
+[src/types.ts:286](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L286)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:295](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L295)
+[src/types.ts:304](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L304)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:294](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L294)
+[src/types.ts:303](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L303)
 
 ___
 
@@ -71,7 +71,7 @@ Logging level to use for the application
 
 #### Defined in
 
-[src/types.ts:293](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L293)
+[src/types.ts:302](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L302)
 
 ___
 
@@ -87,4 +87,4 @@ Value may be the special keyword `memory` to prevent writing to disk. Result wil
 
 #### Defined in
 
-[src/types.ts:289](https://github.com/sticky/sticky-utils-lotion/blob/d94a83a/src/types.ts#L289)
+[src/types.ts:298](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L298)
