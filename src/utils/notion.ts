@@ -202,6 +202,8 @@ export const formatExportData = (data: any, type: LotionFieldType) => {
                }
             }),
          }
+      case 'manual':
+         return data
       case 'uuid':
       case 'index':
       default:

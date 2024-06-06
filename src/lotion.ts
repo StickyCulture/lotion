@@ -47,6 +47,7 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
    relation: '',
    relations: [],
    blocks: [],
+   manual: null,
 }
 /**
  * Lotion is a class that allows you to import data from Notion into a JSON, JS, or TS file or as a JavaScript object in memory.
@@ -417,6 +418,7 @@ class Lotion {
                break
             case 'boolean':
             case 'number':
+            case 'manual':
             default:
                result[input.field] = rawValue
                break
