@@ -25,6 +25,7 @@ import {
    SchemaIndex,
    LotionConstructor,
    SchemaBlock,
+   LoggerLogLevel,
 } from './types'
 import { convertToPlaintext, convertToRichText, sanitizeText } from './utils/text'
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
@@ -119,6 +120,11 @@ class Lotion {
    }
 
    constructor(params: LotionConstructor) {
+      // set the log level
+      if (params.logLevel) {
+         logger.logLevel = LoggerLogLevel[params.logLevel.toUpperCase() as keyof typeof LoggerLogLevel]
+      }
+
       // make sure outputFiles exist
       if (!params.outputFiles || !params.outputFiles.length) {
          throw new Error('No output specified. Aborting.')
