@@ -1,5 +1,5 @@
 {
-  "name": "sticky-utils-lotion",
+  "name": "@stickyculture/lotion",
   "version": "2.1.0",
   "description": "copy a Notion database to a local place",
   "main": "dist/index.js",
@@ -14,7 +14,7 @@
     "prepare": "yarn build && husky"
   },
   "bin": {
-    "sticky-utils-lotion": "dist/cli.js"
+    "lotion": "dist/cli.js"
   },
   "files": [
     "dist"

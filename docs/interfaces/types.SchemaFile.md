@@ -1,4 +1,4 @@
-[sticky-utils-lotion](../README.md) / [types](../modules/types.md) / SchemaFile
+[@stickyculture/lotion](../README.md) / [types](../modules/types.md) / SchemaFile
 
 # Interface: SchemaFile
 
@@ -22,7 +22,7 @@
 
 #### Defined in
 
-[src/types.ts:332](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/types.ts#L332)
+[src/types.ts:332](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L332)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:334](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/types.ts#L334)
+[src/types.ts:334](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L334)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:331](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/types.ts#L331)
+[src/types.ts:331](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L331)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:330](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/types.ts#L330)
+[src/types.ts:330](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L330)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:333](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/types.ts#L333)
+[src/types.ts:333](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L333)

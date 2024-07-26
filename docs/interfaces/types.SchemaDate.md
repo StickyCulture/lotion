@@ -1,4 +1,4 @@
-[sticky-utils-lotion](../README.md) / [types](../modules/types.md) / SchemaDate
+[@stickyculture/lotion](../README.md) / [types](../modules/types.md) / SchemaDate
 
 # Interface: SchemaDate
 
@@ -21,7 +21,7 @@ A date range object in UTC time. The `end` value may be `null` if the date is si
 
 #### Defined in
 
-[src/types.ts:352](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/types.ts#L352)
+[src/types.ts:352](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L352)
 
 ___
 
@@ -31,4 +31,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:351](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/types.ts#L351)
+[src/types.ts:351](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L351)

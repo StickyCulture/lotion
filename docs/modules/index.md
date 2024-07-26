@@ -1,4 +1,4 @@
-[sticky-utils-lotion](../README.md) / index
+[@stickyculture/lotion](../README.md) / index
 
 # Module: index
 
@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[src/utils/config.ts:42](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/utils/config.ts#L42)
+[src/utils/config.ts:42](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/utils/config.ts#L42)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 #### Defined in
 
-[src/utils/config.ts:10](https://github.com/sticky/sticky-utils-lotion/blob/a6e9a0a/src/utils/config.ts#L10)
+[src/utils/config.ts:10](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/utils/config.ts#L10)
