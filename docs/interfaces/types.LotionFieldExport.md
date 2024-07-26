@@ -6,7 +6,7 @@
 
 ## Hierarchy
 
-- `Pick`\<[`LotionField`](types.LotionField.md), ``"field"`` \| ``"default"`` \| ``"type"``\>
+- `Pick`\<[`LotionField`](types.LotionField.md), ``"name"`` \| ``"default"`` \| ``"type"``\>
 
   ↳ **`LotionFieldExport`**
 
@@ -15,8 +15,8 @@
 ### Properties
 
 - [default](types.LotionFieldExport.md#default)
-- [field](types.LotionFieldExport.md#field)
 - [input](types.LotionFieldExport.md#input)
+- [name](types.LotionFieldExport.md#name)
 - [type](types.LotionFieldExport.md#type)
 
 ## Properties
@@ -33,25 +33,7 @@ Pick.default
 
 #### Defined in
 
-[src/types.ts:185](https://github.com/sticky/sticky-utils-lotion/blob/6b5a76b/src/types.ts#L185)
-
-___
-
-### field
-
-• **field**: `string`
-
-The name of the field (property) in the Notion API response
-
-Should exactly match the name of the property in the Notion database
-
-#### Inherited from
-
-Pick.field
-
-#### Defined in
-
-[src/types.ts:175](https://github.com/sticky/sticky-utils-lotion/blob/6b5a76b/src/types.ts#L175)
+[src/types.ts:185](https://github.com/sticky/sticky-utils-lotion/blob/c7067a8/src/types.ts#L185)
 
 ___
 
@@ -63,7 +45,25 @@ The key name from the `import.schema` object that this field should be mapped to
 
 #### Defined in
 
-[src/types.ts:207](https://github.com/sticky/sticky-utils-lotion/blob/6b5a76b/src/types.ts#L207)
+[src/types.ts:207](https://github.com/sticky/sticky-utils-lotion/blob/c7067a8/src/types.ts#L207)
+
+___
+
+### name
+
+• **name**: `string`
+
+The name of the field (property) in the Notion API response
+
+Should exactly match the name of the property in the Notion database
+
+#### Inherited from
+
+Pick.name
+
+#### Defined in
+
+[src/types.ts:175](https://github.com/sticky/sticky-utils-lotion/blob/c7067a8/src/types.ts#L175)
 
 ___
 
@@ -81,4 +81,4 @@ Pick.type
 
 #### Defined in
 
-[src/types.ts:181](https://github.com/sticky/sticky-utils-lotion/blob/6b5a76b/src/types.ts#L181)
+[src/types.ts:181](https://github.com/sticky/sticky-utils-lotion/blob/c7067a8/src/types.ts#L181)

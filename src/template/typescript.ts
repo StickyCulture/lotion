@@ -4,7 +4,7 @@ import { LotionConfig, LotionField } from 'src/types'
 
 const resolveTypeDefinition = (config: LotionConfig) => {
    const getType = (field: string) => {
-      const { type, transform } = config.import.fields.find(input => input.field === field) || ({} as LotionField)
+      const { type, transform } = config.import.fields.find(input => input.name === field) || ({} as LotionField)
 
       if (transform) {
          // TODO: figure out how to define transformed data
