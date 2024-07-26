@@ -373,3 +373,9 @@ export type NotionDatabaseQueryParams = {
    limit?: number
    offset?: number
 }
+
+export interface EnvironmentOptions {
+   file?: string
+   importToken?: string
+   exportToken?: string
+}

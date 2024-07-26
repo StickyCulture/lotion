@@ -17,14 +17,14 @@
 
 ### generateParamsFromConfigFile
 
-▸ **generateParamsFromConfigFile**(`configFilePath?`, `envFile?`): `Promise`\<[`LotionConstructor`](types.md#lotionconstructor)\>
+▸ **generateParamsFromConfigFile**(`configFilePath?`, `environmentOptions?`): `Promise`\<[`LotionConstructor`](types.md#lotionconstructor)\>
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `configFilePath?` | `string` |
-| `envFile?` | `string` |
+| `environmentOptions?` | [`EnvironmentOptions`](../interfaces/types.EnvironmentOptions.md) |
 
 #### Returns
 
@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[src/utils/config.ts:42](https://github.com/sticky/sticky-utils-lotion/blob/1542c06/src/utils/config.ts#L42)
+[src/utils/config.ts:42](https://github.com/sticky/sticky-utils-lotion/blob/6b5a76b/src/utils/config.ts#L42)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 #### Defined in
 
-[src/utils/config.ts:10](https://github.com/sticky/sticky-utils-lotion/blob/1542c06/src/utils/config.ts#L10)
+[src/utils/config.ts:10](https://github.com/sticky/sticky-utils-lotion/blob/6b5a76b/src/utils/config.ts#L10)

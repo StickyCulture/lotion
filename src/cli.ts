@@ -11,12 +11,20 @@ const handleCli = async () => {
    program.description('Copy a Notion database to a local place')
    program.option('-c --config <path>', 'path to config file')
    program.option('-e --env <path>', 'path to .env file')
+   program.option('--notion-import-token <token>', 'Notion token for the import database')
+   program.option('--notion-export-token <token>', 'Notion token for the export database')
    program.parse()
 
    const options = program.opts()
 
+   const environmentOptions = {
+      file: options.env,
+      importToken: options.notionImportToken,
+      exportToken: options.notionExportToken,
+   }
+
    // handle configuration
-   const config = await generateParamsFromConfigFile(options.config, options.env)
+   const config = await generateParamsFromConfigFile(options.config, environmentOptions)
 
    const lotion = new Lotion(config)
    await lotion.run()

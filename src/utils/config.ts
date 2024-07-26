@@ -5,7 +5,7 @@ import { configDotenv } from 'dotenv'
 
 import logger from './logger'
 
-import { LoggerLogLevel, LotionConfig, LotionConstructor } from '../types'
+import { EnvironmentOptions, LoggerLogLevel, LotionConfig, LotionConstructor } from '../types'
 
 export const getCosmicConfig = async (configFilePath?: string): Promise<CosmiconfigResult> => {
    const explorer = cosmiconfig('lotion')
@@ -41,7 +41,7 @@ export const loadEnvironmentVariables = (path: string): void => {
 
 export const generateParamsFromConfigFile = async (
    configFilePath?: string,
-   envFile?: string
+   environmentOptions?: EnvironmentOptions
 ): Promise<LotionConstructor> => {
    const cosmic: CosmiconfigResult = await getCosmicConfig(configFilePath)
    const config: LotionConfig & LotionConstructor = { ...cosmic.config }
@@ -57,24 +57,31 @@ export const generateParamsFromConfigFile = async (
       logger.logLevel = LoggerLogLevel[config.logLevel.toUpperCase() as keyof typeof LoggerLogLevel]
    }
 
+   // Important: CLI options override configuration file settings
+   environmentOptions = environmentOptions || {}
+   environmentOptions.file = environmentOptions.file || config.envFile
    // load environment variables
-   loadEnvironmentVariables(config.envFile ? path.join(configDir, config.envFile) : envFile || '')
-
-   // set token configuration
-   if (!process.env.NOTION_IMPORT_TOKEN) {
-      throw new Error('You must provide a NOTION_IMPORT_TOKEN environment variable')
+   if (environmentOptions.file) {
+      loadEnvironmentVariables(environmentOptions.file)
    }
 
-   config.import.token = process.env.NOTION_IMPORT_TOKEN
+   // set token configuration
+   config.import.token = environmentOptions.importToken || process.env.NOTION_IMPORT_TOKEN
+   if (!config.import.token) {
+      throw new Error(
+         'You must provide a Notion token for imports either in the .env file (NOTION_IMPORT_TOKEN) or as a CLI option (--notion-import-token).'
+      )
+   }
 
    if (config.export) {
-      if (process.env.NOTION_EXPORT_TOKEN) {
-         config.export.token = process.env.NOTION_EXPORT_TOKEN
-      } else if (config.export.database === config.import.database) {
+      config.export.token = environmentOptions.exportToken || process.env.NOTION_EXPORT_TOKEN
+
+      // if the export database is the same as the import database, use the same token
+      if (!config.export.token && config.export.database === config.import.database) {
          config.export.token = config.import.token
       } else {
          throw new Error(
-            'You must provide a NOTION_EXPORT_TOKEN environment variable for the export database if it is different than the import database.'
+            'You must provide a Notion token for exports either in the .env file (NOTION_EXPORT_TOKEN) or as a CLI option (--notion-export-token).'
          )
       }
    }
