@@ -27,7 +27,7 @@ The Notion database ID to query
 
 #### Defined in
 
-[src/types.ts:217](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L217)
+[src/types.ts:217](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L217)
 
 ___
 
@@ -39,7 +39,7 @@ An array of field definitions to import from the Notion API response
 
 #### Defined in
 
-[src/types.ts:237](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L237)
+[src/types.ts:237](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L237)
 
 ___
 
@@ -51,7 +51,7 @@ Filter arguments for the query, see [Notion API documentation](https://developer
 
 #### Defined in
 
-[src/types.ts:221](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L221)
+[src/types.ts:221](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L221)
 
 ___
 
@@ -63,7 +63,7 @@ The maximum number of records to return
 
 #### Defined in
 
-[src/types.ts:229](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L229)
+[src/types.ts:229](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L229)
 
 ___
 
@@ -75,7 +75,7 @@ The number of records to skip before returning results. Will operate on the defa
 
 #### Defined in
 
-[src/types.ts:233](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L233)
+[src/types.ts:233](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L233)
 
 ___
 
@@ -109,7 +109,7 @@ A promise that resolves with the final array of data to be exported
 
 #### Defined in
 
-[src/types.ts:267](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L267)
+[src/types.ts:267](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L267)
 
 ___
 
@@ -146,7 +146,7 @@ schema: {
 
 #### Defined in
 
-[src/types.ts:261](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L261)
+[src/types.ts:261](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L261)
 
 ___
 
@@ -158,4 +158,4 @@ Sort arguments for the query, see [Notion API documentation](https://developers.
 
 #### Defined in
 
-[src/types.ts:225](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/types.ts#L225)
+[src/types.ts:225](https://github.com/sticky/sticky-utils-lotion/blob/7bb5b11/src/types.ts#L225)

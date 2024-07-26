@@ -56,6 +56,8 @@ NOTION_IMPORT_TOKEN=secret_1234567890abcdef1234567890abcdef
 NOTION_EXPORT_TOKEN=secret_1234567890abcdef1234567890abcdef
 ```
 
+> Note: You can also pass `--notion-import-token` and `--notion-export-token` as command line options.
+
 #### lotion.config.js file
 
 
