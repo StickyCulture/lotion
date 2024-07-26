@@ -109,7 +109,7 @@ const data = await lotion.run()
 
 #### Defined in
 
-[src/lotion.ts:122](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L122)
+[src/lotion.ts:122](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L122)
 
 ## Properties
 
@@ -119,7 +119,7 @@ const data = await lotion.run()
 
 #### Defined in
 
-[src/lotion.ts:113](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L113)
+[src/lotion.ts:113](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L113)
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:116](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L116)
+[src/lotion.ts:116](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L116)
 
 ___
 
@@ -139,7 +139,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:115](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L115)
+[src/lotion.ts:115](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L115)
 
 ## Accessors
 
@@ -153,7 +153,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:118](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L118)
+[src/lotion.ts:118](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L118)
 
 ## Methods
 
@@ -167,7 +167,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:277](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L277)
+[src/lotion.ts:277](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L277)
 
 ___
 
@@ -187,7 +187,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:522](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L522)
+[src/lotion.ts:522](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L522)
 
 ___
 
@@ -207,7 +207,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:559](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L559)
+[src/lotion.ts:559](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L559)
 
 ___
 
@@ -229,7 +229,7 @@ The first stage of the import process. This function filters the raw data from N
 
 #### Defined in
 
-[src/lotion.ts:303](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L303)
+[src/lotion.ts:303](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L303)
 
 ___
 
@@ -250,7 +250,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:499](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L499)
+[src/lotion.ts:499](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L499)
 
 ___
 
@@ -266,7 +266,7 @@ Run the Lotion instance
 
 #### Defined in
 
-[src/lotion.ts:170](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L170)
+[src/lotion.ts:170](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L170)
 
 ___
 
@@ -286,7 +286,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:282](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L282)
+[src/lotion.ts:282](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L282)
 
 ___
 
@@ -306,7 +306,7 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:452](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L452)
+[src/lotion.ts:452](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L452)
 
 ___
 
@@ -326,4 +326,4 @@ ___
 
 #### Defined in
 
-[src/lotion.ts:436](https://github.com/sticky/sticky-utils-lotion/blob/6919cf3/src/lotion.ts#L436)
+[src/lotion.ts:436](https://github.com/sticky/sticky-utils-lotion/blob/8cda98f/src/lotion.ts#L436)

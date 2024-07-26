@@ -94,27 +94,27 @@ module.exports = {
     },
     fields: [
       {
-        field: 'id',
+        name: 'id',
         type: 'uuid',
       },
       {
-        field: 'ID',
+        name: 'ID',
         type: 'index'
       },
       {
-        field: 'Name',
+        name: 'Name',
         type: 'title',
       },
       {
-        field: 'Description',
+        name: 'Description',
         type: 'richText',
       },
       {
-        field: 'Hero Image',
+        name: 'Hero Image',
         type: 'image',
       },
       {
-        field: 'Tags',
+        name: 'Tags',
         type: 'options',
         transform: (value, row) => {
           return value.map((tag) => {
@@ -126,23 +126,23 @@ module.exports = {
         },
       },
       {
-        field: 'Value',
+        name: 'Value',
         type: 'number',
         default: 0,
       },
       {
-        field: 'Related Attachment Files',
+        name: 'Related Attachment Files',
         type: 'files',
       },
       {
-        field: 'Is Published',
+        name: 'Is Published',
         type: 'boolean',
         validate: (value) => {
           return value
         }
       },
       {
-        field: '_project',
+        name: '_project',
         type: 'text',
         default: 'Custom Project',
       },
@@ -171,12 +171,12 @@ module.exports = {
       database: '1234567890abcdef1234567890abcdef',
       fields: [
         {
-          field: 'id',
+          name: 'id',
           type: 'uuid',
           input: 'id',
         },
         {
-          field: '5th Grade Description',
+          name: '5th Grade Description',
           type: 'text',
           input: 'description_g5',
         },
