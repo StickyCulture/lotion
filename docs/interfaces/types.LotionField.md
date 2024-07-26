@@ -1,4 +1,4 @@
-[sticky-utils-lotion](../README.md) / [types](../modules/types.md) / LotionField
+[@stickyculture/lotion](../README.md) / [types](../modules/types.md) / LotionField
 
 # Interface: LotionField
 
@@ -9,7 +9,7 @@
 ### Properties
 
 - [default](types.LotionField.md#default)
-- [field](types.LotionField.md#field)
+- [name](types.LotionField.md#name)
 - [transform](types.LotionField.md#transform)
 - [type](types.LotionField.md#type)
 - [validate](types.LotionField.md#validate)
@@ -24,13 +24,13 @@ The default value to use if the field is not found in the Notion API response
 
 #### Defined in
 
-[src/types.ts:185](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L185)
+[src/types.ts:185](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L185)
 
 ___
 
-### field
+### name
 
-• **field**: `string`
+• **name**: `string`
 
 The name of the field (property) in the Notion API response
 
@@ -38,7 +38,7 @@ Should exactly match the name of the property in the Notion database
 
 #### Defined in
 
-[src/types.ts:175](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L175)
+[src/types.ts:175](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L175)
 
 ___
 
@@ -71,7 +71,7 @@ The function should return the transformed value
 
 #### Defined in
 
-[src/types.ts:197](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L197)
+[src/types.ts:197](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L197)
 
 ___
 
@@ -85,7 +85,7 @@ This will determine the output type of the field when passing to `validate` and 
 
 #### Defined in
 
-[src/types.ts:181](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L181)
+[src/types.ts:181](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L181)
 
 ___
 
@@ -118,4 +118,4 @@ If the function returns `false`, the associated row will be skipped
 
 #### Defined in
 
-[src/types.ts:191](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L191)
+[src/types.ts:191](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L191)

@@ -1,4 +1,4 @@
-[sticky-utils-lotion](../README.md) / [types](../modules/types.md) / SchemaIndex
+[@stickyculture/lotion](../README.md) / [types](../modules/types.md) / SchemaIndex
 
 # Interface: SchemaIndex
 
@@ -20,7 +20,7 @@
 
 #### Defined in
 
-[src/types.ts:341](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L341)
+[src/types.ts:341](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L341)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:342](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L342)
+[src/types.ts:342](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L342)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:343](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L343)
+[src/types.ts:343](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L343)

@@ -25,6 +25,7 @@ import {
    SchemaIndex,
    LotionConstructor,
    SchemaBlock,
+   LoggerLogLevel,
 } from './types'
 import { convertToPlaintext, convertToRichText, sanitizeText } from './utils/text'
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
@@ -74,18 +75,18 @@ const UNKNOWN_DEFAULTS: { [key in LotionFieldType]: any } = {
  *       database: '12345678-1234-1234-1234-1234567890ab',
  *       token: 'secret_123',
  *       fields: [
- *          { field: 'id', type: 'uuid' },
- *          { field: 'Custom ID', type: 'index', transform: value => value.value },
- *          { field: 'Item Name', type: 'title' },
- *          { field: 'Description', type: 'richText' },
- *          { field: 'Subtitle', type: 'text' },
- *          { field: 'Files', type: 'files' },
- *          { field: 'Images', type: 'images' },
- *          { field: 'Category', type: 'option' },
- *          { field: 'Quantity', type: 'number' },
- *          { field: 'Tags', type: 'options', transform: arr => arr.map(item => item.toLowerCase())},
- *          { field: 'Is Published', type: 'boolean', validate: value => value },
- *          { field: 'Related', type: 'relation' },
+ *          { name: 'id', type: 'uuid' },
+ *          { name: 'Custom ID', type: 'index', transform: value => value.value },
+ *          { name: 'Item Name', type: 'title' },
+ *          { name: 'Description', type: 'richText' },
+ *          { name: 'Subtitle', type: 'text' },
+ *          { name: 'Files', type: 'files' },
+ *          { name: 'Images', type: 'images' },
+ *          { name: 'Category', type: 'option' },
+ *          { name: 'Quantity', type: 'number' },
+ *          { name: 'Tags', type: 'options', transform: arr => arr.map(item => item.toLowerCase())},
+ *          { name: 'Is Published', type: 'boolean', validate: value => value },
+ *          { name: 'Related', type: 'relation' },
  *       ],
  *       schema: {
  *          id: 'id',
@@ -119,6 +120,11 @@ class Lotion {
    }
 
    constructor(params: LotionConstructor) {
+      // set the log level
+      if (params.logLevel) {
+         logger.logLevel = LoggerLogLevel[params.logLevel.toUpperCase() as keyof typeof LoggerLogLevel]
+      }
+
       // make sure outputFiles exist
       if (!params.outputFiles || !params.outputFiles.length) {
          throw new Error('No output specified. Aborting.')
@@ -194,7 +200,7 @@ class Lotion {
       })
 
       // get the field that is the page title
-      const pageTitleField = (this.config.import.fields.find(input => input.type === 'title') || { field: 'id' }).field
+      const pageTitleField = (this.config.import.fields.find(input => input.type === 'title') || { name: 'id' }).name
       logger.verbose(`Using "${pageTitleField}" as page title field`)
 
       let formattedData = []
@@ -278,13 +284,13 @@ class Lotion {
 
       const incorrectFields: string[] = []
       scope.fields.forEach(expectedProperty => {
-         const name = expectedProperty.field
+         const name = expectedProperty.name
          if (name === 'id') {
             return
          }
          const property = response.properties[name]
          if (!property) {
-            incorrectFields.push(expectedProperty.field)
+            incorrectFields.push(expectedProperty.name)
          }
       })
 
@@ -297,10 +303,10 @@ class Lotion {
    private filterRow = async (item: any): Promise<FilteredRow> => {
       const result: FilteredRow = {}
       for await (const input of this.config.import.fields) {
-         logger.verbose(`Getting raw input for ${input.field}`)
+         logger.verbose(`Getting raw input for ${input.name}`)
 
-         if (input.field === 'id' && input.type === 'uuid') {
-            result[input.field] = item.id
+         if (input.name === 'id' && input.type === 'uuid') {
+            result[input.name] = item.id
             continue
          }
 
@@ -323,22 +329,22 @@ class Lotion {
                   logger.warn(`Block ${block.id} has no rich text. Skipping.`)
                }
             })
-            result[input.field] = blockRichText
-            logger.verbose(result[input.field])
+            result[input.name] = blockRichText
+            logger.verbose(result[input.name])
             continue
          }
 
          const defaultValue = input.default || UNKNOWN_DEFAULTS[input.type]
 
          // if the field is not a property of item.properties object, return the default value
-         if (!item.properties[input.field]) {
-            logger.warn(`Field ${input.field} not found in item. Using default value.`)
-            result[input.field] = defaultValue
+         if (!item.properties[input.name]) {
+            logger.warn(`Field ${input.name} not found in item. Using default value.`)
+            result[input.name] = defaultValue
             continue
          }
 
          // if the field is a property of item.properties object, return its raw or default value
-         const property = item.properties[input.field]
+         const property = item.properties[input.name]
          let rawValue = property[property.type]
          if (property.type === 'formula' || property.type === 'rollup') {
             rawValue = rawValue[rawValue.type]
@@ -348,7 +354,7 @@ class Lotion {
          switch (input.type) {
             case 'index': {
                const { prefix, number } = rawValue
-               result[input.field] = {
+               result[input.name] = {
                   number,
                   prefix: prefix || '',
                   value: `${prefix || ''}${prefix ? '-' : ''}${number}`,
@@ -358,60 +364,60 @@ class Lotion {
             case 'title':
             case 'text':
                // convert the original array to a plaintext string
-               result[input.field] = rawValue.length ? convertToPlaintext(rawValue) : defaultValue
+               result[input.name] = rawValue.length ? convertToPlaintext(rawValue) : defaultValue
                break
             case 'richText':
                // this is a special case because the raw value is an array of objects
-               result[input.field] = rawValue.length ? convertToRichText(rawValue) : defaultValue
+               result[input.name] = rawValue.length ? convertToRichText(rawValue) : defaultValue
                break
             case 'file':
             case 'image':
                // only one value is expected for these types
-               result[input.field] = rawValue.length > 0 ? rawValue[0].file.url : defaultValue
+               result[input.name] = rawValue.length > 0 ? rawValue[0].file.url : defaultValue
                break
             case 'option':
                // only one value is expected for this types
                if (property.type === 'multi_select') {
-                  result[input.field] = rawValue.length > 0 ? rawValue[0] : defaultValue
+                  result[input.name] = rawValue.length > 0 ? rawValue[0] : defaultValue
                } else if (property.type === 'select') {
-                  result[input.field] = rawValue ? rawValue.name : defaultValue
+                  result[input.name] = rawValue ? rawValue.name : defaultValue
                } else if (typeof rawValue === 'string') {
-                  result[input.field] = rawValue.split(',').map((item: string) => item.trim())[0]
+                  result[input.name] = rawValue.split(',').map((item: string) => item.trim())[0]
                } else {
-                  result[input.field] = defaultValue
+                  result[input.name] = defaultValue
                }
                break
             case 'files':
             case 'images':
                // multiple values are allowed for these types
-               result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.file.url) : defaultValue
+               result[input.name] = rawValue.length > 0 ? rawValue.map((item: any) => item.file.url) : defaultValue
                break
             case 'options':
                // multiple values are allowed for these types
                if (property.type === 'multi_select') {
-                  result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
+                  result[input.name] = rawValue.length > 0 ? rawValue.map((item: any) => item.name) : defaultValue
                } else if (property.type === 'select') {
-                  result[input.field] = rawValue ? [rawValue.name] : defaultValue
+                  result[input.name] = rawValue ? [rawValue.name] : defaultValue
                } else if (typeof rawValue === 'string' && rawValue.includes(',')) {
-                  result[input.field] = rawValue.split(',').map((item: string) => item.trim())
+                  result[input.name] = rawValue.split(',').map((item: string) => item.trim())
                } else {
-                  result[input.field] = defaultValue
+                  result[input.name] = defaultValue
                }
                break
             case 'relation':
                // one one value is expected for this type
-               result[input.field] = rawValue.length > 0 ? rawValue[0].id : defaultValue
+               result[input.name] = rawValue.length > 0 ? rawValue[0].id : defaultValue
                break
             case 'relations':
                // multiple values are allowed for this type
-               result[input.field] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
+               result[input.name] = rawValue.length > 0 ? rawValue.map((item: any) => item.id) : defaultValue
                break
             case 'date':
                if (typeof rawValue === 'string') {
-                  result[input.field] = { start: new Date(rawValue), end: null }
+                  result[input.name] = { start: new Date(rawValue), end: null }
                   break
                }
-               result[input.field] = {
+               result[input.name] = {
                   start: new Date(rawValue.start),
                   end: rawValue.end ? new Date(rawValue.end) : null,
                }
@@ -420,7 +426,7 @@ class Lotion {
             case 'number':
             case 'manual':
             default:
-               result[input.field] = rawValue
+               result[input.name] = rawValue
                break
          }
       }
@@ -429,7 +435,7 @@ class Lotion {
 
    private validateRow = async (row: FilteredRow): Promise<boolean> => {
       let isValid = true
-      for (const { validate, field } of this.config.import.fields) {
+      for (const { validate, name: field } of this.config.import.fields) {
          if (!validate) continue
 
          const value = row[field]
@@ -450,24 +456,24 @@ class Lotion {
          switch (definition.type) {
             case 'file':
             case 'image': {
-               const remoteUrl = row[definition.field]
+               const remoteUrl = row[definition.name]
                let fileData: SchemaFile = await createSchemaFile(
                   remoteUrl,
                   this.config.contentDir,
-                  [row.id, sanitizeText(definition.field), 0].join('_'),
+                  [row.id, sanitizeText(definition.name), 0].join('_'),
                   !this.isMemoryOnly
                )
-               row[definition.field] = fileData
+               row[definition.name] = fileData
                break
             }
             case 'files':
             case 'images': {
-               row[definition.field] = await Promise.all(
-                  row[definition.field].map(async (remoteUrl: string, index: number) => {
+               row[definition.name] = await Promise.all(
+                  row[definition.name].map(async (remoteUrl: string, index: number) => {
                      let fileData: SchemaFile = await createSchemaFile(
                         remoteUrl,
                         this.config.contentDir,
-                        [row.id, sanitizeText(definition.field), index].join('_'),
+                        [row.id, sanitizeText(definition.name), index].join('_'),
                         !this.isMemoryOnly
                      )
                      return fileData
@@ -481,10 +487,10 @@ class Lotion {
 
          // transform the input
          if (definition.transform) {
-            logger.verbose(`Transforming ${definition.type} for ${definition.field} (${this.currentTitle})`)
-            transformed[definition.field] = await definition.transform(row[definition.field], row)
+            logger.verbose(`Transforming ${definition.type} for ${definition.name} (${this.currentTitle})`)
+            transformed[definition.name] = await definition.transform(row[definition.name], row)
          } else {
-            transformed[definition.field] = row[definition.field]
+            transformed[definition.name] = row[definition.name]
          }
       }
       return transformed
@@ -554,7 +560,7 @@ class Lotion {
       const notionData = []
       for (const row of formattedData) {
          const remappedRow: any = { properties: {} }
-         this.config.export.fields.forEach(({ field, input, type }: LotionFieldExport) => {
+         this.config.export.fields.forEach(({ name: field, input, type }: LotionFieldExport) => {
             const value = row[input]
             if (type === 'uuid') {
                remappedRow.title = remappedRow.title || value

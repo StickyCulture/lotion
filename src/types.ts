@@ -172,7 +172,7 @@ export interface LotionField {
     *
     * Should exactly match the name of the property in the Notion database
     */
-   field: string
+   name: string
    /**
     * The type of field to target in the Notion API response
     *
@@ -200,7 +200,7 @@ export interface LotionField {
 /**
  * @group Configuration
  */
-export interface LotionFieldExport extends Pick<LotionField, 'field' | 'default' | 'type'> {
+export interface LotionFieldExport extends Pick<LotionField, 'name' | 'default' | 'type'> {
    /**
     * The key name from the `import.schema` object that this field should be mapped to when exporting
     */
@@ -243,10 +243,10 @@ export interface LotionImport {
     * @example
     * ```javascript
     * fields: [
-    *    { field: 'My Notion Title', type: 'title' },
-    *    { field: 'My Rich Text Field', type: 'richText' },
-    *    { field: 'My Images', type: 'images' },
-    *    { field: '_not_in_the_database', type: 'number', default: Math.random() }
+    *    { name: 'My Notion Title', type: 'title' },
+    *    { name: 'My Rich Text Field', type: 'richText' },
+    *    { name: 'My Images', type: 'images' },
+    *    { name: '_not_in_the_database', type: 'number', default: Math.random() }
     * ],
     * schema: {
     *    title: 'My Notion Title',
@@ -372,4 +372,10 @@ export type NotionDatabaseQueryParams = {
    filter?: QueryDatabaseParameters['filter']
    limit?: number
    offset?: number
+}
+
+export interface EnvironmentOptions {
+   file?: string
+   importToken?: string
+   exportToken?: string
 }

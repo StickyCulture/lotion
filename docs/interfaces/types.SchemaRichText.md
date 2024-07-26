@@ -1,4 +1,4 @@
-[sticky-utils-lotion](../README.md) / [types](../modules/types.md) / SchemaRichText
+[@stickyculture/lotion](../README.md) / [types](../modules/types.md) / SchemaRichText
 
 # Interface: SchemaRichText
 
@@ -20,7 +20,7 @@
 
 #### Defined in
 
-[src/types.ts:323](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L323)
+[src/types.ts:323](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L323)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:322](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L322)
+[src/types.ts:322](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L322)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:321](https://github.com/sticky/sticky-utils-lotion/blob/b3d3d85/src/types.ts#L321)
+[src/types.ts:321](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L321)

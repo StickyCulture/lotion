@@ -1,5 +1,5 @@
 {
-  "name": "sticky-utils-lotion",
+  "name": "@stickyculture/lotion",
   "version": "2.1.0",
   "description": "copy a Notion database to a local place",
   "main": "dist/index.js",
@@ -8,12 +8,13 @@
     "cli": "echo '#!/usr/bin/env node' | cat - dist/cli.js > temp && mv temp dist/cli.js",
     "build": "tsc -p tsconfig.json && yarn run cli",
     "docs": "typedoc --readme none --cleanOutputDir --out docs --plugin typedoc-plugin-markdown --entryPointStrategy expand ./src/index.ts ./src/types.ts",
+    "test": "jest",
     "test:js": "yarn run build && node dist/index.js",
     "test:cli": "yarn run build && node dist/cli.js",
     "prepare": "yarn build && husky"
   },
   "bin": {
-    "sticky-utils-lotion": "dist/cli.js"
+    "lotion": "dist/cli.js"
   },
   "files": [
     "dist"
@@ -21,7 +22,11 @@
   "author": "Justin Seibert",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@types/jest": "^29.5.12",
     "husky": "^9.0.11",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.3",
     "ts-node": "^10.9.1",
     "typedoc": "^0.25.8",
     "typedoc-plugin-markdown": "^3.17.1",

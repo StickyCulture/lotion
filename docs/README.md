@@ -1,6 +1,6 @@
-sticky-utils-lotion
+@stickyculture/lotion
 
-# sticky-utils-lotion
+# @stickyculture/lotion
 
 ## Table of contents
 
