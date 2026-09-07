@@ -21,7 +21,7 @@ A date range object in UTC time. The `end` value may be `null` if the date is si
 
 #### Defined in
 
-[src/types.ts:352](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L352)
+[src/types.ts:352](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L352)
 
 ___
 
@@ -31,4 +31,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:351](https://github.com/sticky/sticky-utils-lotion/blob/88143ca/src/types.ts#L351)
+[src/types.ts:351](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L351)
