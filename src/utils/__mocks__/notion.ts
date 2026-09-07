@@ -29,7 +29,7 @@ const getFakeText = () => {
                type: 'text',
                text: {
                   content: text,
-                  link: null,
+                  link: null as any,
                },
                annotations: {
                   bold: index == 1,
@@ -40,7 +40,7 @@ const getFakeText = () => {
                   color: 'default',
                },
                plain_text: text,
-               href: null,
+               href: null as any,
             }
          }),
    }

@@ -27,7 +27,7 @@ The Notion database ID to query
 
 #### Defined in
 
-[src/types.ts:217](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L217)
+[src/types.ts:217](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L217)
 
 ___
 
@@ -39,7 +39,7 @@ An array of field definitions to import from the Notion API response
 
 #### Defined in
 
-[src/types.ts:237](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L237)
+[src/types.ts:237](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L237)
 
 ___
 
@@ -51,7 +51,7 @@ Filter arguments for the query, see [Notion API documentation](https://developer
 
 #### Defined in
 
-[src/types.ts:221](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L221)
+[src/types.ts:221](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L221)
 
 ___
 
@@ -63,7 +63,7 @@ The maximum number of records to return
 
 #### Defined in
 
-[src/types.ts:229](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L229)
+[src/types.ts:229](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L229)
 
 ___
 
@@ -75,7 +75,7 @@ The number of records to skip before returning results. Will operate on the defa
 
 #### Defined in
 
-[src/types.ts:233](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L233)
+[src/types.ts:233](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L233)
 
 ___
 
@@ -85,15 +85,9 @@ ___
 
 A hook function that runs immediately after all imported rows have been processed with `transform` and `validate` functions and just before the final export and write to output files. This function should return the final array of data to be exported.
 
-**`Param`**
-
-The array of data that has been processed
-
 #### Type declaration
 
 ▸ (`data`): `Promise`\<`any`[]\>
-
-A hook function that runs immediately after all imported rows have been processed with `transform` and `validate` functions and just before the final export and write to output files. This function should return the final array of data to be exported.
 
 ##### Parameters
 
@@ -105,11 +99,9 @@ A hook function that runs immediately after all imported rows have been processe
 
 `Promise`\<`any`[]\>
 
-A promise that resolves with the final array of data to be exported
-
 #### Defined in
 
-[src/types.ts:267](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L267)
+[src/types.ts:267](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L267)
 
 ___
 
@@ -146,7 +138,7 @@ schema: {
 
 #### Defined in
 
-[src/types.ts:261](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L261)
+[src/types.ts:261](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L261)
 
 ___
 
@@ -158,4 +150,4 @@ Sort arguments for the query, see [Notion API documentation](https://developers.
 
 #### Defined in
 
-[src/types.ts:225](https://github.com/sticky/sticky-utils-lotion/blob/03ed165/src/types.ts#L225)
+[src/types.ts:225](https://github.com/sticky/sticky-utils-lotion/blob/8711df43a6b37e3786b3e4d8a7c677ec39234644/src/types.ts#L225)
